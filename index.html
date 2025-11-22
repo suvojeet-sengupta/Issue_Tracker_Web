@@ -139,8 +139,15 @@
                     <!-- Advisor Name -->
                     <div class="group">
                         <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Advisor Name</label>
-                        <input type="text" id="setup-name" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition" placeholder="Full Name" required>
-                        <p id="name-error" class="text-red-500 text-xs mt-2 ml-1 hidden flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> Alphabets only please!</p>
+                        <div class="relative">
+                            <input type="text" id="setup-name" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition" placeholder="Full Name" required>
+                            <div id="name-error-icon" class="absolute right-4 top-1/2 -translate-y-1/2 text-red-500 hidden animate-bounce">
+                                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <p id="name-error" class="text-red-500 text-xs mt-2 ml-1 hidden flex items-center gap-1 font-medium animate-pulse">
+                            Alphabets only please!
+                        </p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">

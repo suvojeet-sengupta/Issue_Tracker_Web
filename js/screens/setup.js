@@ -72,13 +72,25 @@ export const SetupScreen = {
         nameInput.addEventListener('input', (e) => {
             const regex = /^[a-zA-Z ]+$/;
             const err = document.getElementById('name-error');
-            if (!regex.test(e.target.value) && e.target.value !== '') {
+            const errIcon = document.getElementById('name-error-icon');
+            
+            // Check if empty (valid) or matches regex
+            const isValid = e.target.value === '' || regex.test(e.target.value);
+
+            if (!isValid) {
                 err.classList.remove('hidden');
-                e.target.classList.add('border-red-500');
+                errIcon.classList.remove('hidden');
+                e.target.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+                e.target.classList.remove('focus:border-indigo-500', 'focus:ring-indigo-500/20');
             } else {
                 err.classList.add('hidden');
-                e.target.classList.remove('border-red-500');
+                errIcon.classList.add('hidden');
+                e.target.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+                e.target.classList.add('focus:border-indigo-500', 'focus:ring-indigo-500/20');
             }
+            
+            // Re-init icons to render the new alert-circle if visible
+            if(!isValid) lucide.createIcons();
         });
 
         // Submit

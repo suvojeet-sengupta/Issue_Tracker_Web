@@ -94,13 +94,19 @@ export const TrackerScreen = {
             params.append('entry.1211413190', issue);
             params.append('entry.1231067802', reason);
 
-            // --- RESET MODAL UI ---
-            document.getElementById('modal-header-title').innerText = "Processing Submission...";
-            document.getElementById('modal-header-desc').innerText = "Review details while we submit.";
+            // --- MANUAL SUBMISSION FLOW ---
+            
+            // 1. Construct Pre-filled URL
+            // Add cache busters
+            const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url&entry.999999999=${Date.now()}`;
+            
+            // 2. Reset Modal UI
+            document.getElementById('modal-header-title').innerText = "Complete Submission";
+            document.getElementById('modal-header-desc').innerText = "Please review and submit the form below.";
             
             const spinnerContainer = document.getElementById('modal-spinner-container');
             spinnerContainer.className = "w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center transition-colors duration-300";
-            spinnerContainer.innerHTML = `<i data-lucide="loader-2" class="animate-spin w-5 h-5 text-indigo-600"></i>`;
+            spinnerContainer.innerHTML = `<i data-lucide="pen-tool" class="w-5 h-5 text-indigo-600"></i>`;
             
             const actionBtn = document.getElementById('modal-cancel-btn');
             actionBtn.innerText = "Cancel";
@@ -109,39 +115,33 @@ export const TrackerScreen = {
             
             lucide.createIcons();
 
-            // Start Loading Preview
-            TrackerScreen.submissionStage = 'loading_preview'; // WAIT FOR LOAD
-            
-            // Add pageHistory=0 and timestamp to bust cache/drafts
-            const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url&pageHistory=0&_=${Date.now()}`;
-            
-            // Load the Visual Preview in the Iframe
+            // 3. Load Form in Iframe
+            TrackerScreen.submissionStage = 'loading_form';
             iframe.src = finalUrl;
             iframeModal.classList.remove('hidden');
 
-            // Store for later
+            // Store data for history saving later
             form.dataset.pendingIssue = issue;
             form.dataset.pendingTime = timeRange;
             form.dataset.prefilledUrl = finalUrl;
         });
 
-        // Iframe Load (Handles both Preview Load and Submission Success)
+        // Iframe Load Handler (Detects Navigation)
         iframe.onload = function() {
-            if (TrackerScreen.submissionStage === 'loading_preview') {
-                // Preview has finished loading. Now start the timer.
-                console.log("Preview Loaded. Starting Timer...");
-                TrackerScreen.submissionStage = 'previewing';
-                
-                // 5s Delay before ACTUAL Submission
-                TrackerScreen.autoSubmitTimer = setTimeout(() => {
-                    TrackerScreen.submissionStage = 'submitting';
-                    form.submit(); // POST to hidden iframe
-                }, 5000);
+            console.log("Iframe Loaded. Stage:", TrackerScreen.submissionStage);
+
+            if (TrackerScreen.submissionStage === 'loading_form') {
+                // The Google Form just finished loading.
+                // Now we wait for the user to click Submit inside the frame.
+                TrackerScreen.submissionStage = 'waiting_for_user_submit';
+                console.log("Form Ready. Waiting for user...");
             } 
-            else if (TrackerScreen.submissionStage === 'submitting') {
-                // Submission Response Loaded
-                console.log("Submission Complete");
-                
+            else if (TrackerScreen.submissionStage === 'waiting_for_user_submit') {
+                // The iframe reloaded! This implies the user clicked Submit.
+                // We assume it's the "Response Recorded" page.
+                console.log("User Submitted!");
+                TrackerScreen.submissionStage = 'submitted';
+
                 // 1. Save History
                 const issue = form.dataset.pendingIssue;
                 const time = form.dataset.pendingTime;
@@ -152,9 +152,9 @@ export const TrackerScreen = {
                     window.dispatchEvent(new CustomEvent('app:historyUpdated'));
                 }
 
-                // 2. Update Modal UI for Manual Confirmation
+                // 2. Update UI to Success
                 document.getElementById('modal-header-title').innerText = "Submission Successful!";
-                document.getElementById('modal-header-desc').innerText = "Google Form response recorded.";
+                document.getElementById('modal-header-desc').innerText = "Response recorded.";
                 
                 const spinnerContainer = document.getElementById('modal-spinner-container');
                 spinnerContainer.className = "w-10 h-10 bg-green-100 rounded-full flex items-center justify-center transition-colors duration-300";
@@ -164,14 +164,13 @@ export const TrackerScreen = {
                 actionBtn.innerText = "Continue";
                 actionBtn.className = "px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition shadow-lg shadow-green-600/20";
                 
-                // Override Close Behavior
                 actionBtn.onclick = () => {
                     TrackerScreen.closeIframeModal();
                     Modals.showSuccess(url, () => {
                         Helpers.showScreen('dashboard-screen');
                     });
                 };
-
+                
                 lucide.createIcons();
             }
         };

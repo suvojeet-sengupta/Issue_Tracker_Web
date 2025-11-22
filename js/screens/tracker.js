@@ -92,8 +92,8 @@ export const TrackerScreen = {
             params.append('entry.1211413190', issue);
             params.append('entry.1231067802', reason);
 
-            // Start Preview
-            TrackerScreen.submissionStage = 'previewing';
+            // Start Loading Preview
+            TrackerScreen.submissionStage = 'loading_preview'; // WAIT FOR LOAD
             const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
             
             // Load the Visual Preview in the Iframe
@@ -104,17 +104,23 @@ export const TrackerScreen = {
             form.dataset.pendingIssue = issue;
             form.dataset.pendingTime = timeRange;
             form.dataset.prefilledUrl = finalUrl;
-
-            // 5s Delay before ACTUAL Submission
-            TrackerScreen.autoSubmitTimer = setTimeout(() => {
-                TrackerScreen.submissionStage = 'submitting';
-                form.submit(); // POST to hidden iframe
-            }, 5000);
         });
 
-        // Iframe Load (Triggers only after form.submit() response)
+        // Iframe Load (Handles both Preview Load and Submission Success)
         iframe.onload = function() {
-            if (TrackerScreen.submissionStage === 'submitting') {
+            if (TrackerScreen.submissionStage === 'loading_preview') {
+                // Preview has finished loading. Now start the timer.
+                console.log("Preview Loaded. Starting Timer...");
+                TrackerScreen.submissionStage = 'previewing';
+                
+                // 5s Delay before ACTUAL Submission
+                TrackerScreen.autoSubmitTimer = setTimeout(() => {
+                    TrackerScreen.submissionStage = 'submitting';
+                    form.submit(); // POST to hidden iframe
+                }, 5000);
+            } 
+            else if (TrackerScreen.submissionStage === 'submitting') {
+                // Submission Response Loaded
                 console.log("Submission Complete");
                 
                 const issue = form.dataset.pendingIssue;
@@ -129,7 +135,6 @@ export const TrackerScreen = {
                 setTimeout(() => {
                     TrackerScreen.closeIframeModal();
                     Modals.showSuccess(url, () => {
-                        // After success modal closes, go to dashboard
                         Helpers.showScreen('dashboard-screen');
                     });
                 }, 500);

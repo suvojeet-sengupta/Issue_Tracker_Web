@@ -224,7 +224,7 @@ googleForm.addEventListener('submit', (e) => {
     setTimeout(() => {
         submissionStage = 'submitting';
         googleForm.submit(); // This performs the actual POST
-    }, 3000); // 3 seconds delay to "see" the form
+    }, 15000); // 15 seconds delay to "see" the form
 });
 
 // 4. Detect Iframe Load

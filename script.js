@@ -1,11 +1,13 @@
 // Initialize Lucide Icons
 lucide.createIcons();
 
-// --- CONFIGURATION ---
+// --- ELEMENTS ---
 const setupScreen = document.getElementById('setup-screen');
 const dashboardScreen = document.getElementById('dashboard-screen');
 const trackerScreen = document.getElementById('tracker-screen');
+
 const setupForm = document.getElementById('setup-form');
+const googleForm = document.getElementById('google-form');
 
 // Setup Inputs
 const crmInput = document.getElementById('setup-crm');
@@ -20,43 +22,57 @@ const statTotal = document.getElementById('stat-total');
 const statToday = document.getElementById('stat-today');
 const historyList = document.getElementById('history-list');
 
-// --- INITIAL LOAD LOGIC ---
-const savedConfig = localStorage.getItem('trackerConfig');
+// Modal Elements
+const iframe = document.getElementById('hidden_iframe');
+const iframeModal = document.getElementById('iframe-modal');
 
+// Global State
+let submissionStage = 'idle'; // idle, previewing, submitting
+let autoSubmitTimer = null;
+
+// --- INITIAL LOAD ---
+const savedConfig = localStorage.getItem('trackerConfig');
 if (savedConfig) {
     loadApp(JSON.parse(savedConfig));
 } else {
-    setupScreen.classList.remove('hidden');
+    showScreen('setup-screen');
 }
 
-// --- NAVIGATION LOGIC ---
+// --- NAVIGATION ---
 function showScreen(screenId) {
+    // Hide all
     [setupScreen, dashboardScreen, trackerScreen].forEach(s => s.classList.add('hidden'));
-    document.getElementById(screenId).classList.remove('hidden');
-    // Re-trigger animation
-    document.getElementById(screenId).classList.remove('slide-in');
-    void document.getElementById(screenId).offsetWidth; // trigger reflow
-    document.getElementById(screenId).classList.add('slide-in');
+    
+    // Show Target
+    const target = document.getElementById(screenId);
+    if (target) {
+        target.classList.remove('hidden');
+        target.classList.remove('slide-in');
+        void target.offsetWidth; // Force Reflow for animation
+        target.classList.add('slide-in');
+    }
 }
 
-document.getElementById('new-issue-btn').addEventListener('click', () => {
+// Event Listeners for Navigation
+document.getElementById('new-issue-btn')?.addEventListener('click', () => {
     showScreen('tracker-screen');
-    initTimePickers(); // Reset times on new entry
+    initTimePickers();
 });
 
-document.getElementById('back-btn').addEventListener('click', () => {
+document.getElementById('back-btn')?.addEventListener('click', () => {
     showScreen('dashboard-screen');
     renderDashboard();
 });
 
-document.getElementById('settings-btn').addEventListener('click', () => {
-    if(confirm("Reset your setup details? This will NOT delete your history.")) {
+document.getElementById('settings-btn')?.addEventListener('click', () => {
+    if(confirm("Reset your setup details? History will remain saved.")) {
         localStorage.removeItem('trackerConfig');
         location.reload();
     }
 });
 
-// --- SETUP MAGIC LOGIC ---
+// --- SETUP LOGIC ---
+// Magic Fill for '1210793'
 crmInput.addEventListener('input', (e) => {
     if (e.target.value === '1210793') {
         nameInput.value = "Suvojeet Sengupta";
@@ -68,6 +84,7 @@ crmInput.addEventListener('input', (e) => {
     }
 });
 
+// TL 'Other' Logic
 tlInput.addEventListener('change', (e) => {
     if (e.target.value === 'Other') {
         otherTlContainer.classList.remove('hidden');
@@ -78,6 +95,7 @@ tlInput.addEventListener('change', (e) => {
     }
 });
 
+// Name Validation
 nameInput.addEventListener('input', (e) => {
     const regex = /^[a-zA-Z ]+$/;
     const err = document.getElementById('name-error');
@@ -90,28 +108,32 @@ nameInput.addEventListener('input', (e) => {
     }
 });
 
+// Setup Submit
 setupForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const regex = /^[a-zA-Z ]+$/;
     if (!regex.test(nameInput.value)) { alert("Advisor name must be alphabets only!"); return; }
+    
     const finalTL = tlInput.value === 'Other' ? otherTlInput.value : tlInput.value;
     const config = { crm: crmInput.value, name: nameInput.value, org: orgInput.value, tl: finalTL };
+    
     localStorage.setItem('trackerConfig', JSON.stringify(config));
     loadApp(config);
 });
 
 function loadApp(config) {
-    // Save config to hidden fields
+    // Update Read-Only Display (in Tracker Screen)
     document.getElementById('disp-crm').innerText = config.crm;
     document.getElementById('disp-name').innerText = config.name;
     document.getElementById('disp-tl').innerText = config.tl;
     
+    // Fill Hidden Inputs for Form
     document.getElementById('hidden-crm').value = config.crm;
     document.getElementById('hidden-name').value = config.name;
     document.getElementById('hidden-tl').value = config.tl;
     document.getElementById('hidden-org').value = config.org;
 
-    // Go to Dashboard
+    // DIRECTLY OPEN DASHBOARD
     showScreen('dashboard-screen');
     renderDashboard();
 }
@@ -120,23 +142,22 @@ function loadApp(config) {
 function renderDashboard() {
     const history = JSON.parse(localStorage.getItem('trackerHistory') || '[]');
     
-    // Stats
+    // Update Stats
     statTotal.innerText = history.length;
     
     const todayStr = new Date().toDateString();
     const todayCount = history.filter(h => new Date(h.timestamp).toDateString() === todayStr).length;
     statToday.innerText = todayCount;
 
-    // History List
+    // Update History List
     historyList.innerHTML = '';
     if (history.length === 0) {
         historyList.innerHTML = '<div class="text-center text-slate-400 text-sm py-4">No history yet. Start tracking!</div>';
         return;
     }
 
-    // Sort by newest first
     const sortedHistory = [...history].reverse();
-
+    
     sortedHistory.forEach(item => {
         const el = document.createElement('div');
         el.className = 'bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between';
@@ -171,9 +192,11 @@ function saveToHistory(issue, timeRange) {
     localStorage.setItem('trackerHistory', JSON.stringify(history));
 }
 
+// --- TIME PICKER LOGIC ---
 function initTimePickers() {
     const populate = (id, start, end, pad = false) => {
         const el = document.getElementById(id);
+        if(!el) return;
         el.innerHTML = '';
         for(let i=start; i<=end; i++) {
             let val = pad ? i.toString().padStart(2, '0') : i;
@@ -209,24 +232,28 @@ function initTimePickers() {
     setVal('start-hour', startH); setVal('start-min', pm.toString().padStart(2, '0')); setVal('start-ampm', startAmPm);
 }
 
-// --- VISUAL SUBMISSION LOGIC ---
-const googleForm = document.getElementById('google-form');
-const iframe = document.getElementById('hidden_iframe');
-const iframeModal = document.getElementById('iframe-modal');
-let submissionStage = 'idle'; // idle, previewing, submitting
-
+// --- FORM SUBMISSION LOGIC ---
 function closeIframeModal() {
     iframeModal.classList.add('hidden');
-    iframe.src = 'about:blank'; // Clear frame
+    iframe.src = 'about:blank'; 
     submissionStage = 'idle';
+    
+    // Clear pending timer if user closes modal
+    if (autoSubmitTimer) {
+        clearTimeout(autoSubmitTimer);
+        autoSubmitTimer = null;
+    }
 }
 
-googleForm.addEventListener('submit', (e) => {
-    e.preventDefault(); // Always prevent default first to handle logic manually
-    
-    if (submissionStage !== 'idle') return; // Prevent double clicks
+// Close button event
+document.querySelector('#iframe-modal button')?.addEventListener('click', closeIframeModal);
 
-    // 1. Time Validation
+googleForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    if (submissionStage !== 'idle') return; 
+
+    // 1. Validate Time
     const get24Hour = (h, m, ap) => {
         h = parseInt(h);
         if (ap === 'PM' && h < 12) h += 12;
@@ -253,13 +280,12 @@ googleForm.addEventListener('submit', (e) => {
     }
     document.getElementById('time-error').classList.add('hidden');
 
-    // 2. Prepare Data
+    // 2. Prepare Hidden Data
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const yyyy = today.getFullYear();
 
-    // Populate Hidden Fields for POST
     document.getElementById('hidden-start-h').value = startTime.h;
     document.getElementById('hidden-start-m').value = sM;
     document.getElementById('hidden-end-h').value = endTime.h;
@@ -271,11 +297,11 @@ googleForm.addEventListener('submit', (e) => {
     document.getElementById('hidden-end-mo').value = mm;
     document.getElementById('hidden-end-d').value = dd;
 
-    // Capture Data for History
+    // 3. Capture History Metadata
     const issue = document.getElementById('explain-issue').value;
     const timeRange = `${sH}:${sM} ${sAP} - ${eH}:${eM} ${eAP}`;
     
-    // 3. Construct Pre-filled URL for Preview
+    // 4. Construct Preview URL
     const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/viewform";
     const params = new URLSearchParams();
     
@@ -283,43 +309,39 @@ googleForm.addEventListener('submit', (e) => {
     params.append('entry.44222229', document.getElementById('hidden-name').value);
     params.append('entry.115861300', document.getElementById('hidden-tl').value);
     params.append('entry.313975949', document.getElementById('hidden-org').value);
-    
     params.append('entry.1521239602_hour', startTime.h);
     params.append('entry.1521239602_minute', sM);
     params.append('entry.701130970_hour', endTime.h);
     params.append('entry.701130970_minute', eM);
-    
     params.append('entry.702818104_year', yyyy);
     params.append('entry.702818104_month', mm);
     params.append('entry.702818104_day', dd);
     params.append('entry.514450388_year', yyyy);
     params.append('entry.514450388_month', mm);
     params.append('entry.514450388_day', dd);
-    
     params.append('entry.1211413190', issue);
-    // Radio button value
     const reason = document.querySelector('input[name="entry.1231067802"]:checked').value;
     params.append('entry.1231067802', reason);
-    
-    // 4. Start "Preview" Phase
+
+    // 5. Open Preview
     submissionStage = 'previewing';
-    iframeModal.classList.remove('hidden');
     const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
     iframe.src = finalUrl;
-    
-    // Store data to save after success
+    iframeModal.classList.remove('hidden');
+
+    // Store metadata for post-submit logic
     googleForm.dataset.pendingIssue = issue;
     googleForm.dataset.pendingTime = timeRange;
     googleForm.dataset.prefilledUrl = finalUrl;
 
-    // 5. Schedule Auto-Submit
-    setTimeout(() => {
+    // 6. Schedule Auto-Submit (15 Seconds)
+    autoSubmitTimer = setTimeout(() => {
         submissionStage = 'submitting';
-        googleForm.submit(); // This performs the actual POST
-    }, 15000); // 15 seconds delay
+        googleForm.submit(); 
+    }, 15000);
 });
 
-// 4. Detect Iframe Load
+// Iframe Load Handler
 iframe.onload = function() {
     if (submissionStage === 'previewing') {
         console.log("Preview Loaded");
@@ -327,32 +349,34 @@ iframe.onload = function() {
     else if (submissionStage === 'submitting') {
         console.log("Submission Complete");
         
-        // Save History Here
+        // Save to History
         const issue = googleForm.dataset.pendingIssue;
         const time = googleForm.dataset.pendingTime;
         const url = googleForm.dataset.prefilledUrl;
+        
         if(issue && time) {
             saveToHistory(issue, time);
-            renderDashboard(); // Update dashboard silently
+            renderDashboard(); 
         }
 
+        // Show Success Modal after short delay
         setTimeout(() => {
-            closeIframeModal();
+            closeIframeModal(); // This also clears the timer/state
             showSuccessModal(url);
         }, 1000);
     }
 };
 
+// Success Modal Logic
 function showSuccessModal(prefilledUrl) {
     const modal = document.getElementById('success-modal');
     const content = document.getElementById('modal-content');
     modal.classList.remove('hidden');
-    // Trigger animation
+    
     setTimeout(() => {
         content.classList.remove('opacity-0', 'scale-95');
         content.classList.add('opacity-100', 'scale-100');
         
-        // Display the prefilled link
         const linkContainer = document.getElementById('prefilled-link-container');
         const linkElement = document.getElementById('prefilled-link');
         if (prefilledUrl && linkContainer && linkElement) {
@@ -372,7 +396,7 @@ function closeModal() {
     
     setTimeout(() => {
         modal.classList.add('hidden');
-        // Go back to dashboard after closing success modal
+        // Return to Dashboard
         showScreen('dashboard-screen');
     }, 300);
 }

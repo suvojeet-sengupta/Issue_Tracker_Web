@@ -249,34 +249,65 @@
 
                     <!-- Stats Grid -->
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-indigo-200 transition-colors group">
+                        <!-- Total Issues -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-indigo-100 transition-all group relative overflow-hidden">
+                             <div class="absolute right-0 top-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
+                                 <i data-lucide="layers" class="w-16 h-16 text-indigo-600"></i>
+                             </div>
                              <div class="bg-indigo-50 w-10 h-10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <i data-lucide="layers" class="w-5 h-5 text-indigo-600"></i>
                              </div>
-                             <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Total</p>
-                             <h3 class="text-3xl font-bold text-slate-800 mt-1" id="stat-total">0</h3>
+                             <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Total Issues</p>
+                             <h3 class="text-3xl font-bold text-slate-800 mt-1 tracking-tight" id="stat-total">0</h3>
                         </div>
-                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-purple-200 transition-colors group">
+
+                        <!-- Today's Issues -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-purple-100 transition-all group relative overflow-hidden">
+                             <div class="absolute right-0 top-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
+                                 <i data-lucide="calendar-check" class="w-16 h-16 text-purple-600"></i>
+                             </div>
                              <div class="bg-purple-50 w-10 h-10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <i data-lucide="calendar-check" class="w-5 h-5 text-purple-600"></i>
                              </div>
                              <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Today</p>
-                             <h3 class="text-3xl font-bold text-slate-800 mt-1" id="stat-today">0</h3>
+                             <h3 class="text-3xl font-bold text-slate-800 mt-1 tracking-tight" id="stat-today">0</h3>
+                        </div>
+                        
+                        <!-- Last Entry (Full Width) -->
+                        <div class="col-span-2 bg-gradient-to-r from-slate-800 to-slate-900 p-5 rounded-2xl shadow-lg text-white relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 p-3 opacity-10">
+                                 <i data-lucide="clock" class="w-24 h-24 text-white"></i>
+                            </div>
+                            <div class="relative z-10 flex justify-between items-center">
+                                <div>
+                                    <p class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Last Activity</p>
+                                    <h3 class="text-xl font-bold text-white tracking-tight" id="stat-last">No activity yet</h3>
+                                </div>
+                                <div class="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                                    <i data-lucide="arrow-up-right" class="w-5 h-5 text-white"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <button id="view-all-history-btn" class="w-full py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition flex items-center justify-center gap-2">
-                        <i data-lucide="list" class="w-4 h-4"></i> View Full History
+                    <button id="view-all-history-btn" class="w-full py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-100 transition flex items-center justify-center gap-2 group">
+                        <i data-lucide="list" class="w-4 h-4 group-hover:text-indigo-500 transition-colors"></i> View Full History
                     </button>
                 </div>
 
                 <!-- RIGHT CONTENT (History) -->
                 <div class="lg:col-span-8 xl:col-span-9">
-                    <div class="bg-white/50 backdrop-blur-lg rounded-3xl shadow-sm border border-white/60 p-6 min-h-[500px]">
-                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                            <i data-lucide="history" class="w-5 h-5 text-slate-400"></i> 
-                            Recent Activity
-                        </h3>
+                    <div class="bg-white/60 backdrop-blur-xl rounded-[2rem] shadow-sm border border-white/50 p-8 min-h-[600px]">
+                        <div class="flex items-center justify-between mb-8">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-800">Recent Activity</h3>
+                                <p class="text-sm text-slate-500">Your latest tracked issues.</p>
+                            </div>
+                            <div class="bg-white px-3 py-1 rounded-full border border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider shadow-sm">
+                                Live Updates
+                            </div>
+                        </div>
+                        
                         <div id="history-list" class="space-y-4">
                             <!-- History items will be injected here -->
                         </div>
@@ -398,91 +429,111 @@
                   action="https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/formResponse" 
                   method="POST" 
                   target="hidden_iframe"
-                  class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                  class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
                 
-                <div class="p-8 space-y-8">
-                    <!-- Time Selection -->
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4 uppercase tracking-wider">
-                            <i data-lucide="clock" class="w-4 h-4 text-indigo-500"></i> Time Selection
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Start Time -->
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 group focus-within:border-indigo-300 transition-colors">
-                                <label class="block text-xs font-bold text-slate-400 mb-2">START TIME</label>
-                                <div class="flex gap-2">
-                                    <select id="start-hour" class="bg-white border border-slate-200 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500 transition"></select>
-                                    <span class="text-slate-300 font-bold py-2">:</span>
-                                    <select id="start-min" class="bg-white border border-slate-200 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500 transition"></select>
-                                    <select id="start-ampm" class="bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500 transition">
-                                        <option value="AM">AM</option>
-                                        <option value="PM">PM</option>
-                                    </select>
+                <div class="p-8 space-y-10">
+                    <!-- Section: Time -->
+                    <div class="relative">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-full"></div>
+                        <div class="pl-6">
+                            <h3 class="text-lg font-bold text-slate-800 mb-1">Time Selection</h3>
+                            <p class="text-sm text-slate-400 mb-6">Specify the duration of the issue.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Start Time -->
+                                <div class="group">
+                                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider group-focus-within:text-indigo-600 transition-colors">Start Time</label>
+                                    <div class="flex gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all">
+                                        <select id="start-hour" class="bg-transparent rounded-lg px-2 py-2 w-full text-center font-bold text-slate-700 outline-none cursor-pointer hover:bg-white transition"></select>
+                                        <span class="text-slate-300 font-bold py-2">:</span>
+                                        <select id="start-min" class="bg-transparent rounded-lg px-2 py-2 w-full text-center font-bold text-slate-700 outline-none cursor-pointer hover:bg-white transition"></select>
+                                        <select id="start-ampm" class="bg-white text-indigo-600 rounded-lg px-2 py-2 w-full text-center font-bold outline-none shadow-sm border border-slate-100">
+                                            <option value="AM">AM</option>
+                                            <option value="PM">PM</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- End Time -->
+                                <div class="group">
+                                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider group-focus-within:text-purple-600 transition-colors">End Time</label>
+                                    <div class="flex gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 focus-within:border-purple-500 focus-within:ring-4 focus-within:ring-purple-500/10 transition-all">
+                                        <select id="end-hour" class="bg-transparent rounded-lg px-2 py-2 w-full text-center font-bold text-slate-700 outline-none cursor-pointer hover:bg-white transition"></select>
+                                        <span class="text-slate-300 font-bold py-2">:</span>
+                                        <select id="end-min" class="bg-transparent rounded-lg px-2 py-2 w-full text-center font-bold text-slate-700 outline-none cursor-pointer hover:bg-white transition"></select>
+                                        <select id="end-ampm" class="bg-white text-purple-600 rounded-lg px-2 py-2 w-full text-center font-bold outline-none shadow-sm border border-slate-100">
+                                            <option value="AM">AM</option>
+                                            <option value="PM">PM</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- End Time -->
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 group focus-within:border-indigo-300 transition-colors">
-                                <label class="block text-xs font-bold text-slate-400 mb-2">END TIME</label>
-                                <div class="flex gap-2">
-                                    <select id="end-hour" class="bg-white border border-slate-200 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500 transition"></select>
-                                    <span class="text-slate-300 font-bold py-2">:</span>
-                                    <select id="end-min" class="bg-white border border-slate-200 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500 transition"></select>
-                                    <select id="end-ampm" class="bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500 transition">
-                                        <option value="AM">AM</option>
-                                        <option value="PM">PM</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <p id="time-error" class="text-red-500 text-sm font-bold mt-2 hidden flex items-center gap-2 bg-red-50 p-3 rounded-lg">
-                            <i data-lucide="alert-triangle" class="w-4 h-4"></i> End time must be after Start time!
-                        </p>
-                    </div>
-
-                    <div class="h-px bg-slate-100"></div>
-
-                    <!-- Issue Details -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Issue Dropdown -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Explain Issue</label>
-                            <div class="relative">
-                                <select name="entry.1211413190" id="explain-issue" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition appearance-none text-sm font-medium">
-                                    <option value="System Hang / Voice Issue" selected>System Hang / Voice Issue</option>
-                                    <option value="Electricity Issue/Power Failure">Electricity Issue/Power Failure</option>
-                                    <option value="Head Phone Issue">Head Phone Issue</option>
-                                    <option value="Wifi Stopped Working">Wifi Stopped Working</option>
-                                    <option value="Voice Issue / Cx Voice Not Audible">Voice Issue / Cx Voice Not Audible</option>
-                                    <option value="Mobile Phone Hang">Mobile Phone Hang</option>
-                                    <option value="Auto Call Drop">Auto Call Drop</option>
-                                    <option value="Aspect / WDE issue">Aspect / WDE issue</option>
-                                    <option value="Mobile Network Connectivity">Mobile Network Connectivity</option>
-                                </select>
-                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
-                            </div>
-                        </div>
-
-                        <!-- Reason Radio -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Root Cause</label>
-                            <div class="space-y-2">
-                                <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/50 has-[:checked]:shadow-sm">
-                                    <input type="radio" name="entry.1231067802" value="System issue (Network , Asset & Aspect /WDE issue)" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" checked>
-                                    <span class="ml-3 text-sm text-slate-700 font-medium">System / Network / Asset</span>
-                                </label>
-                                <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50/50 has-[:checked]:shadow-sm">
-                                    <input type="radio" name="entry.1231067802" value="Voice Issue" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
-                                    <span class="ml-3 text-sm text-slate-700 font-medium">Voice Issue</span>
-                                </label>
-                            </div>
+                            <p id="time-error" class="text-red-500 text-sm font-bold mt-4 hidden flex items-center gap-2 bg-red-50 p-3 rounded-xl border border-red-100 animate-pulse">
+                                <i data-lucide="alert-triangle" class="w-4 h-4"></i> End time must be after Start time!
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Remarks -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Remarks (Optional)</label>
-                        <textarea id="remarks" rows="2" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition text-sm" placeholder="Any specific details..."></textarea>
+                    <hr class="border-slate-100">
+
+                    <!-- Section: Details -->
+                    <div class="relative">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 rounded-full"></div>
+                        <div class="pl-6">
+                            <h3 class="text-lg font-bold text-slate-800 mb-1">Issue Details</h3>
+                            <p class="text-sm text-slate-400 mb-6">Categorize the problem accurately.</p>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <!-- Issue Dropdown -->
+                                <div class="group">
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Explain Issue</label>
+                                    <div class="relative">
+                                        <select name="entry.1211413190" id="explain-issue" class="w-full px-4 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white focus:outline-none transition appearance-none text-sm font-semibold text-slate-700 cursor-pointer">
+                                            <option value="System Hang / Voice Issue" selected>System Hang / Voice Issue</option>
+                                            <option value="Electricity Issue/Power Failure">Electricity Issue/Power Failure</option>
+                                            <option value="Head Phone Issue">Head Phone Issue</option>
+                                            <option value="Wifi Stopped Working">Wifi Stopped Working</option>
+                                            <option value="Voice Issue / Cx Voice Not Audible">Voice Issue / Cx Voice Not Audible</option>
+                                            <option value="Mobile Phone Hang">Mobile Phone Hang</option>
+                                            <option value="Auto Call Drop">Auto Call Drop</option>
+                                            <option value="Aspect / WDE issue">Aspect / WDE issue</option>
+                                            <option value="Mobile Network Connectivity">Mobile Network Connectivity</option>
+                                        </select>
+                                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Reason Radio -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Root Cause</label>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-indigo-200 transition-all has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 has-[:checked]:shadow-md">
+                                            <div class="relative flex items-center justify-center w-5 h-5">
+                                                <input type="radio" name="entry.1231067802" value="System issue (Network , Asset & Aspect /WDE issue)" class="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-full checked:border-indigo-500 checked:bg-indigo-500 transition-all" checked>
+                                                <div class="absolute w-2 h-2 bg-white rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                            </div>
+                                            <span class="ml-3 text-sm text-slate-700 font-bold">System / Network / Asset</span>
+                                        </label>
+                                        
+                                        <label class="flex items-center p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-purple-200 transition-all has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50 has-[:checked]:shadow-md">
+                                            <div class="relative flex items-center justify-center w-5 h-5">
+                                                <input type="radio" name="entry.1231067802" value="Voice Issue" class="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-full checked:border-purple-500 checked:bg-purple-500 transition-all">
+                                                <div class="absolute w-2 h-2 bg-white rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                            </div>
+                                            <span class="ml-3 text-sm text-slate-700 font-bold">Voice Issue</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Remarks -->
+                            <div class="mt-8">
+                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Remarks (Optional)</label>
+                                <textarea id="remarks" rows="3" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 focus:ring-4 focus:ring-slate-500/10 focus:border-slate-400 focus:bg-white focus:outline-none transition text-sm font-medium placeholder:text-slate-300" placeholder="Add any specific details here..."></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

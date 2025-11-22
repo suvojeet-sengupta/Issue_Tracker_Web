@@ -31,6 +31,26 @@ export const DashboardScreen = {
         document.getElementById('stat-total').innerText = total;
         document.getElementById('stat-today').innerText = todayCount;
 
+        // Last Activity
+        const lastStat = document.getElementById('stat-last');
+        if (total > 0) {
+            const lastItem = history[history.length - 1]; // Last item pushed is the latest
+            const lastDate = new Date(lastItem.timestamp);
+            
+            // Format: "Today, 10:30 AM" or "Oct 24, 10:30 AM"
+            const isToday = lastDate.toDateString() === new Date().toDateString();
+            const timeStr = lastDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            
+            if (isToday) {
+                lastStat.innerText = `Today, ${timeStr}`;
+            } else {
+                const dateStr = lastDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                lastStat.innerText = `${dateStr}, ${timeStr}`;
+            }
+        } else {
+            lastStat.innerText = "No activity yet";
+        }
+
         // Recent History List
         const list = document.getElementById('history-list');
         list.innerHTML = '';

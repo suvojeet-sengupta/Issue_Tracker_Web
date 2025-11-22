@@ -129,14 +129,19 @@ function initTimePickers() {
 const googleForm = document.getElementById('google-form');
 const iframe = document.getElementById('hidden_iframe');
 const iframeModal = document.getElementById('iframe-modal');
-let isSubmitting = false;
+let submissionStage = 'idle'; // idle, previewing, submitting
 
 function closeIframeModal() {
     iframeModal.classList.add('hidden');
+    iframe.src = 'about:blank'; // Clear frame
+    submissionStage = 'idle';
 }
 
 googleForm.addEventListener('submit', (e) => {
+    e.preventDefault(); // Always prevent default first to handle logic manually
     
+    if (submissionStage !== 'idle') return; // Prevent double clicks
+
     // 1. Time Validation
     const get24Hour = (h, m, ap) => {
         h = parseInt(h);
@@ -159,25 +164,22 @@ googleForm.addEventListener('submit', (e) => {
     const endMinutes = (endTime.h * 60) + parseInt(endTime.m);
     
     if (endMinutes <= startMinutes) {
-        e.preventDefault();
         document.getElementById('time-error').classList.remove('hidden');
         return; 
     }
     document.getElementById('time-error').classList.add('hidden');
 
-    // 2. Prepare Hidden Data for Google
+    // 2. Prepare Data
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const yyyy = today.getFullYear();
 
-    // Fill Time Hidden Inputs
+    // Populate Hidden Fields for POST
     document.getElementById('hidden-start-h').value = startTime.h;
     document.getElementById('hidden-start-m').value = sM;
     document.getElementById('hidden-end-h').value = endTime.h;
     document.getElementById('hidden-end-m').value = eM;
-
-    // Fill Date Hidden Inputs
     document.getElementById('hidden-start-y').value = yyyy;
     document.getElementById('hidden-start-mo').value = mm;
     document.getElementById('hidden-start-d').value = dd;
@@ -185,25 +187,62 @@ googleForm.addEventListener('submit', (e) => {
     document.getElementById('hidden-end-mo').value = mm;
     document.getElementById('hidden-end-d').value = dd;
 
-    // 3. Open Iframe Modal (Visual Feedback)
-    isSubmitting = true;
-    iframeModal.classList.remove('hidden');
+    // 3. Construct Pre-filled URL for Preview
+    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/viewform";
+    const params = new URLSearchParams();
     
-    // Form continues to submit to iframe...
+    params.append('entry.1005447471', document.getElementById('hidden-crm').value);
+    params.append('entry.44222229', document.getElementById('hidden-name').value);
+    params.append('entry.115861300', document.getElementById('hidden-tl').value);
+    params.append('entry.313975949', document.getElementById('hidden-org').value);
+    
+    params.append('entry.1521239602_hour', startTime.h);
+    params.append('entry.1521239602_minute', sM);
+    params.append('entry.701130970_hour', endTime.h);
+    params.append('entry.701130970_minute', eM);
+    
+    params.append('entry.702818104_year', yyyy);
+    params.append('entry.702818104_month', mm);
+    params.append('entry.702818104_day', dd);
+    params.append('entry.514450388_year', yyyy);
+    params.append('entry.514450388_month', mm);
+    params.append('entry.514450388_day', dd);
+    
+    params.append('entry.1211413190', document.getElementById('explain-issue').value);
+    // Radio button value
+    const reason = document.querySelector('input[name="entry.1231067802"]:checked').value;
+    params.append('entry.1231067802', reason);
+    // Remarks (no entry ID in mapping? Assuming no Remarks field in mapping list, skipping or adding if known)
+    // If remarks had an ID, we'd add it here.
+    
+    // 4. Start "Preview" Phase
+    submissionStage = 'previewing';
+    iframeModal.classList.remove('hidden');
+    iframe.src = `${baseUrl}?${params.toString()}`;
+    
+    // 5. Schedule Auto-Submit
+    setTimeout(() => {
+        submissionStage = 'submitting';
+        googleForm.submit(); // This performs the actual POST
+    }, 3000); // 3 seconds delay to "see" the form
 });
 
-// 4. Detect Iframe Load (Success)
+// 4. Detect Iframe Load
 iframe.onload = function() {
-    if (isSubmitting) {
-        isSubmitting = false;
+    if (submissionStage === 'previewing') {
+        // The Preview (viewform) just loaded.
+        // We are waiting for the timeout to trigger the POST.
+        console.log("Preview Loaded");
+    } 
+    else if (submissionStage === 'submitting') {
+        // The POST response (formResponse) just loaded.
+        // This means submission is complete.
+        console.log("Submission Complete");
         
-        // Wait a moment so user sees the "Response Recorded" page briefly? 
-        // Or close immediately to show success animation?
-        // Let's close it after 1 second to give a sense of completion.
         setTimeout(() => {
             closeIframeModal();
             showSuccessModal();
-        }, 1500);
+        }, 1000);
     }
 };
 

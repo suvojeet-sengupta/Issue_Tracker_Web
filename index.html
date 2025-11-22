@@ -115,6 +115,21 @@
                 </div>
 
                 <form id="setup-form" class="space-y-5">
+                    <!-- Profile Picture Upload -->
+                    <div class="flex flex-col items-center mb-6">
+                        <div class="relative group cursor-pointer">
+                            <input type="file" id="setup-avatar" accept="image/*" class="hidden">
+                            <div id="avatar-preview" class="w-24 h-24 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden group-hover:border-indigo-400 transition-colors">
+                                <i data-lucide="camera" class="w-8 h-8 text-slate-400 group-hover:text-indigo-500 transition-colors" id="avatar-icon"></i>
+                                <img id="avatar-img" src="" class="w-full h-full object-cover hidden">
+                            </div>
+                            <div class="absolute bottom-0 right-0 bg-indigo-600 text-white p-1.5 rounded-full shadow-md transform translate-x-1/4 translate-y-1/4">
+                                <i data-lucide="plus" class="w-3 h-3"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">Tap to add photo</p>
+                    </div>
+
                     <!-- CRM ID -->
                     <div class="group">
                         <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">CRM ID</label>

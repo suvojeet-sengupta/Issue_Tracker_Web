@@ -12,7 +12,16 @@ export const DashboardScreen = {
         document.getElementById('disp-crm-card').innerText = config.crm;
         document.getElementById('disp-org-card').innerText = config.org;
         document.getElementById('disp-tl-card').innerText = config.tl;
-        document.getElementById('avatar-initials').innerText = config.name.charAt(0).toUpperCase();
+        
+        // Avatar Logic
+        const avatarContainer = document.getElementById('avatar-initials').parentElement; // The .w-full.h-full container
+        if (config.avatar) {
+            avatarContainer.innerHTML = `<img src="${config.avatar}" class="w-full h-full object-cover rounded-full">`;
+            avatarContainer.classList.remove('bg-indigo-100', 'text-indigo-600'); // Remove fallback styles
+        } else {
+            avatarContainer.innerHTML = `<span id="avatar-initials">${config.name.charAt(0).toUpperCase()}</span>`;
+            avatarContainer.classList.add('bg-indigo-100', 'text-indigo-600'); // Restore fallback styles
+        }
 
         // Stats
         const total = history.length;

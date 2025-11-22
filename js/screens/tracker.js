@@ -197,7 +197,16 @@ export const TrackerScreen = {
             document.getElementById('disp-crm').innerText = config.crm;
             document.getElementById('disp-name').innerText = config.name;
             document.getElementById('disp-tl').innerText = config.tl;
-            document.getElementById('bar-avatar').innerText = config.name.charAt(0).toUpperCase();
+            
+            // Avatar in Bar
+            const barAvatar = document.getElementById('bar-avatar');
+            if (config.avatar) {
+                barAvatar.innerHTML = `<img src="${config.avatar}" class="w-full h-full object-cover rounded-full">`;
+                barAvatar.classList.remove('bg-slate-100', 'text-slate-500');
+            } else {
+                barAvatar.innerText = config.name.charAt(0).toUpperCase();
+                barAvatar.classList.add('bg-slate-100', 'text-slate-500');
+            }
             
             // Populate hidden inputs required for the actual POST
             document.getElementById('hidden-crm').value = config.crm;

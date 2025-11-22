@@ -10,6 +10,39 @@ export const SetupScreen = {
         const tlInput = document.getElementById('setup-tl');
         const otherTlContainer = document.getElementById('other-tl-container');
         const otherTlInput = document.getElementById('setup-tl-other');
+        
+        // Avatar Elements
+        const avatarInput = document.getElementById('setup-avatar');
+        const avatarPreview = document.getElementById('avatar-preview');
+        const avatarImg = document.getElementById('avatar-img');
+        const avatarIcon = document.getElementById('avatar-icon');
+        let currentAvatarBase64 = null;
+
+        // Avatar Click Trigger
+        avatarPreview.addEventListener('click', () => avatarInput.click());
+
+        // Handle File Selection
+        avatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate Size (Max 2MB to save LocalStorage space)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert("Image size must be less than 2MB");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    currentAvatarBase64 = evt.target.result;
+                    avatarImg.src = currentAvatarBase64;
+                    avatarImg.classList.remove('hidden');
+                    avatarIcon.classList.add('hidden');
+                    avatarPreview.classList.remove('border-dashed');
+                    avatarPreview.classList.add('border-solid', 'border-indigo-200');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         // Magic Fill
         crmInput.addEventListener('input', (e) => {
@@ -62,13 +95,13 @@ export const SetupScreen = {
                 crm: crmInput.value,
                 name: nameInput.value,
                 org: orgInput.value,
-                tl: finalTL
+                tl: finalTL,
+                avatar: currentAvatarBase64 // Save Image Data
             };
 
             Storage.saveConfig(config);
             
-            // Trigger global load event or direct call? 
-            // We'll dispatch a custom event to App.js
+            // Dispatch event
             window.dispatchEvent(new CustomEvent('app:configSaved'));
         });
     }

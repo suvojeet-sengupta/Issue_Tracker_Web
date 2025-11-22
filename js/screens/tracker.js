@@ -135,9 +135,10 @@ export const TrackerScreen = {
                 setTimeout(() => {
                     TrackerScreen.closeIframeModal();
                     Modals.showSuccess(url, () => {
+                        // After success modal closes, go to dashboard
                         Helpers.showScreen('dashboard-screen');
                     });
-                }, 500);
+                }, 2000); // Wait 2s so user sees "Response Recorded"
             }
         };
 

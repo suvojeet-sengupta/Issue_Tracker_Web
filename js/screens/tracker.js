@@ -92,10 +92,12 @@ export const TrackerScreen = {
             params.append('entry.1211413190', issue);
             params.append('entry.1231067802', reason);
 
-            const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
-
-            // Show Custom Preview Modal
+            // Start Preview
             TrackerScreen.submissionStage = 'previewing';
+            const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
+            
+            // Load the Visual Preview in the Iframe
+            iframe.src = finalUrl;
             iframeModal.classList.remove('hidden');
 
             // Store for later

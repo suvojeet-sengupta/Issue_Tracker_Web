@@ -1,0 +1,63 @@
+import { Storage } from '../utils/storage.js';
+
+export const DashboardScreen = {
+    render: () => {
+        const config = Storage.getConfig();
+        const history = Storage.getHistory();
+
+        if (!config) return;
+
+        // Populate Profile Card
+        document.getElementById('disp-name-card').innerText = config.name;
+        document.getElementById('disp-crm-card').innerText = config.crm;
+        document.getElementById('disp-org-card').innerText = config.org;
+        document.getElementById('disp-tl-card').innerText = config.tl;
+        document.getElementById('avatar-initials').innerText = config.name.charAt(0).toUpperCase();
+
+        // Stats
+        const total = history.length;
+        const todayStr = new Date().toDateString();
+        const todayCount = history.filter(h => new Date(h.timestamp).toDateString() === todayStr).length;
+
+        document.getElementById('stat-total').innerText = total;
+        document.getElementById('stat-today').innerText = todayCount;
+
+        // Recent History List
+        const list = document.getElementById('history-list');
+        list.innerHTML = '';
+
+        if (total === 0) {
+            list.innerHTML = '<div class="text-center text-slate-400 text-sm py-8 italic">No history yet. Start tracking!</div>';
+        } else {
+            // Last 5 items
+            const recent = [...history].reverse().slice(0, 5);
+            recent.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow';
+                
+                const dateObj = new Date(item.timestamp);
+                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const dateStr = dateObj.toLocaleDateString([], { day: 'numeric', month: 'short' });
+
+                el.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <div class="bg-indigo-50 p-3 rounded-full hidden md:block">
+                            <i data-lucide="check-circle-2" class="w-5 h-5 text-indigo-600"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-base">${item.issue}</div>
+                            <div class="text-xs text-slate-500 font-mono mt-1">${item.timeRange}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">${dateStr}</div>
+                        <div class="text-xs text-slate-400">${timeStr}</div>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+        }
+        
+        if(window.lucide) lucide.createIcons();
+    }
+};

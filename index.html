@@ -177,6 +177,10 @@
                              <h3 class="text-3xl font-bold text-slate-800 mt-1" id="stat-today">0</h3>
                         </div>
                     </div>
+                    
+                    <button id="view-all-history-btn" class="w-full py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition flex items-center justify-center gap-2">
+                        <i data-lucide="list" class="w-4 h-4"></i> View Full History
+                    </button>
                 </div>
 
                 <!-- RIGHT CONTENT (History) -->
@@ -192,6 +196,71 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- FULL HISTORY SCREEN -->
+        <div id="history-screen" class="hidden slide-in w-full max-w-5xl mx-auto pb-10">
+             <!-- Header -->
+            <div class="flex items-center justify-between mb-8">
+                <button id="history-back-btn" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:bg-slate-50 text-slate-600 transition font-medium text-sm group">
+                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Back
+                </button>
+                <h2 class="text-2xl font-bold text-slate-800">Full History</h2>
+                <div class="w-10"></div> <!-- Spacer -->
+            </div>
+
+            <!-- Search & Controls -->
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                    <input type="text" id="history-search" placeholder="Search issues..." class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition">
+                </div>
+                <button id="clear-history-btn" class="px-6 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition flex items-center gap-2">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All
+                </button>
+            </div>
+
+            <!-- List -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div id="full-history-list" class="divide-y divide-slate-100">
+                    <!-- Items injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY DETAILS MODAL -->
+        <div id="history-details-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeHistoryModal()"></div>
+            <div class="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-md relative z-10 m-4 slide-in">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-xl font-bold text-slate-800">Issue Details</h3>
+                    <button onclick="closeHistoryModal()" class="p-1 hover:bg-slate-100 rounded-full text-slate-400">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Date & Time</label>
+                        <p id="detail-date" class="font-medium text-slate-800">Loading...</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Issue Type</label>
+                        <p id="detail-issue" class="font-medium text-slate-800">Loading...</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Time Range</label>
+                         <p id="detail-range" class="font-mono text-sm bg-slate-100 p-2 rounded-lg mt-1 text-slate-700">Loading...</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Form Link</label>
+                        <a id="detail-link" href="#" target="_blank" class="flex items-center gap-2 text-indigo-600 hover:underline mt-1 text-sm break-all p-2 bg-indigo-50 rounded-lg">
+                            <i data-lucide="external-link" class="w-4 h-4 flex-shrink-0"></i>
+                            <span class="truncate">View Google Form</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 

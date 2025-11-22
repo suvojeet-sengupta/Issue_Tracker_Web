@@ -5,6 +5,7 @@ lucide.createIcons();
 const setupScreen = document.getElementById('setup-screen');
 const dashboardScreen = document.getElementById('dashboard-screen');
 const trackerScreen = document.getElementById('tracker-screen');
+const historyScreen = document.getElementById('history-screen');
 
 const setupForm = document.getElementById('setup-form');
 const googleForm = document.getElementById('google-form');
@@ -22,9 +23,14 @@ const statTotal = document.getElementById('stat-total');
 const statToday = document.getElementById('stat-today');
 const historyList = document.getElementById('history-list');
 
+// History Screen Elements
+const fullHistoryList = document.getElementById('full-history-list');
+const historySearch = document.getElementById('history-search');
+
 // Modal Elements
 const iframe = document.getElementById('hidden_iframe');
 const iframeModal = document.getElementById('iframe-modal');
+const historyModal = document.getElementById('history-details-modal');
 
 // Global State
 let submissionStage = 'idle'; // idle, previewing, submitting
@@ -41,7 +47,7 @@ if (savedConfig) {
 // --- NAVIGATION ---
 function showScreen(screenId) {
     // Hide all
-    [setupScreen, dashboardScreen, trackerScreen].forEach(s => s.classList.add('hidden'));
+    [setupScreen, dashboardScreen, trackerScreen, historyScreen].forEach(s => s && s.classList.add('hidden'));
     
     // Show Target
     const target = document.getElementById(screenId);
@@ -64,6 +70,16 @@ document.getElementById('back-btn')?.addEventListener('click', () => {
     renderDashboard();
 });
 
+document.getElementById('view-all-history-btn')?.addEventListener('click', () => {
+    showScreen('history-screen');
+    renderFullHistory();
+});
+
+document.getElementById('history-back-btn')?.addEventListener('click', () => {
+    showScreen('dashboard-screen');
+    renderDashboard();
+});
+
 document.getElementById('settings-btn')?.addEventListener('click', () => {
     if(confirm("Reset your setup details? History will remain saved.")) {
         localStorage.removeItem('trackerConfig');
@@ -71,8 +87,18 @@ document.getElementById('settings-btn')?.addEventListener('click', () => {
     }
 });
 
+document.getElementById('clear-history-btn')?.addEventListener('click', () => {
+    if(confirm("Are you sure you want to delete ALL history? This cannot be undone.")) {
+        localStorage.removeItem('trackerHistory');
+        renderFullHistory();
+    }
+});
+
+document.getElementById('history-search')?.addEventListener('input', (e) => {
+    renderFullHistory(e.target.value);
+});
+
 // --- SETUP LOGIC ---
-// Magic Fill for '1210793'
 crmInput.addEventListener('input', (e) => {
     if (e.target.value === '1210793') {
         nameInput.value = "Suvojeet Sengupta";
@@ -84,7 +110,6 @@ crmInput.addEventListener('input', (e) => {
     }
 });
 
-// TL 'Other' Logic
 tlInput.addEventListener('change', (e) => {
     if (e.target.value === 'Other') {
         otherTlContainer.classList.remove('hidden');
@@ -95,7 +120,6 @@ tlInput.addEventListener('change', (e) => {
     }
 });
 
-// Name Validation
 nameInput.addEventListener('input', (e) => {
     const regex = /^[a-zA-Z ]+$/;
     const err = document.getElementById('name-error');
@@ -108,7 +132,6 @@ nameInput.addEventListener('input', (e) => {
     }
 });
 
-// Setup Submit
 setupForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const regex = /^[a-zA-Z ]+$/;
@@ -122,90 +145,146 @@ setupForm.addEventListener('submit', (e) => {
 });
 
 function loadApp(config) {
-    // Update Tracker Screen Info
     document.getElementById('disp-crm').innerText = config.crm;
     document.getElementById('disp-name').innerText = config.name;
     document.getElementById('disp-tl').innerText = config.tl;
     document.getElementById('bar-avatar').innerText = config.name.charAt(0).toUpperCase();
     
-    // Update Dashboard Profile Card
     document.getElementById('disp-name-card').innerText = config.name;
     document.getElementById('disp-crm-card').innerText = config.crm;
     document.getElementById('disp-org-card').innerText = config.org;
     document.getElementById('disp-tl-card').innerText = config.tl;
     document.getElementById('avatar-initials').innerText = config.name.charAt(0).toUpperCase();
 
-    // Fill Hidden Inputs for Form
     document.getElementById('hidden-crm').value = config.crm;
     document.getElementById('hidden-name').value = config.name;
     document.getElementById('hidden-tl').value = config.tl;
     document.getElementById('hidden-org').value = config.org;
 
-    // DIRECTLY OPEN DASHBOARD
     showScreen('dashboard-screen');
     renderDashboard();
 }
 
-// --- DASHBOARD LOGIC ---
+// --- DASHBOARD & HISTORY LOGIC ---
+function getHistory() {
+    return JSON.parse(localStorage.getItem('trackerHistory') || '[]');
+}
+
 function renderDashboard() {
-    const history = JSON.parse(localStorage.getItem('trackerHistory') || '[]');
+    const history = getHistory();
     
-    // Update Stats
     statTotal.innerText = history.length;
-    
     const todayStr = new Date().toDateString();
     const todayCount = history.filter(h => new Date(h.timestamp).toDateString() === todayStr).length;
     statToday.innerText = todayCount;
 
-    // Update History List
     historyList.innerHTML = '';
     if (history.length === 0) {
         historyList.innerHTML = '<div class="text-center text-slate-400 text-sm py-8 italic">No history yet. Start tracking!</div>';
         return;
     }
 
-    const sortedHistory = [...history].reverse();
+    // Show last 5 items on dashboard
+    const sortedHistory = [...history].reverse().slice(0, 5);
     
     sortedHistory.forEach(item => {
-        const el = document.createElement('div');
-        el.className = 'bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow';
-        
-        const dateObj = new Date(item.timestamp);
-        const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const dateStr = dateObj.toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' });
-
-        el.innerHTML = `
-            <div class="flex items-start gap-4">
-                <div class="bg-indigo-50 p-3 rounded-full hidden md:block">
-                    <i data-lucide="check-circle-2" class="w-5 h-5 text-indigo-600"></i>
-                </div>
-                <div>
-                    <div class="font-bold text-slate-800 text-base">${item.issue}</div>
-                    <div class="text-xs text-slate-500 font-mono mt-1">${item.timeRange}</div>
-                </div>
-            </div>
-            <div class="text-right">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">${dateStr}</div>
-                <div class="text-xs text-slate-400">${timeStr}</div>
-            </div>
-        `;
+        const el = createHistoryItem(item);
         historyList.appendChild(el);
     });
-    
     lucide.createIcons();
 }
 
-function saveToHistory(issue, timeRange) {
-    const history = JSON.parse(localStorage.getItem('trackerHistory') || '[]');
+function renderFullHistory(query = '') {
+    const history = getHistory();
+    fullHistoryList.innerHTML = '';
+
+    if (history.length === 0) {
+        fullHistoryList.innerHTML = '<div class="text-center text-slate-400 py-12">No history found.</div>';
+        return;
+    }
+
+    let filtered = [...history].reverse();
+    if (query) {
+        const q = query.toLowerCase();
+        filtered = filtered.filter(h => 
+            h.issue.toLowerCase().includes(q) || 
+            h.timeRange.toLowerCase().includes(q)
+        );
+    }
+
+    if (filtered.length === 0) {
+        fullHistoryList.innerHTML = '<div class="text-center text-slate-400 py-12">No matches found.</div>';
+        return;
+    }
+
+    filtered.forEach(item => {
+        const el = createHistoryItem(item, true); // true = isClickable
+        fullHistoryList.appendChild(el);
+    });
+    lucide.createIcons();
+}
+
+function createHistoryItem(item, isClickable = false) {
+    const el = document.createElement('div');
+    const dateObj = new Date(item.timestamp);
+    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateStr = dateObj.toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' });
+
+    el.className = `bg-white p-4 ${isClickable ? 'border-b last:border-0 hover:bg-slate-50 cursor-pointer transition-colors' : 'rounded-xl shadow-sm border border-slate-100 mb-3'} flex items-center justify-between gap-4`;
+    
+    if (isClickable) {
+        el.onclick = () => openHistoryModal(item);
+    }
+
+    el.innerHTML = `
+        <div class="flex items-start gap-4">
+            <div class="bg-indigo-50 p-3 rounded-full hidden md:block">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-indigo-600"></i>
+            </div>
+            <div>
+                <div class="font-bold text-slate-800 text-base">${item.issue}</div>
+                <div class="text-xs text-slate-500 font-mono mt-1">${item.timeRange}</div>
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">${dateStr}</div>
+            <div class="text-xs text-slate-400">${timeStr}</div>
+        </div>
+    `;
+    return el;
+}
+
+function saveToHistory(issue, timeRange, url) {
+    const history = getHistory();
     history.push({
         timestamp: new Date().toISOString(),
         issue: issue,
-        timeRange: timeRange
+        timeRange: timeRange,
+        url: url
     });
     localStorage.setItem('trackerHistory', JSON.stringify(history));
 }
 
-// --- TIME PICKER LOGIC ---
+// --- HISTORY DETAILS MODAL ---
+function openHistoryModal(item) {
+    document.getElementById('detail-issue').innerText = item.issue;
+    document.getElementById('detail-range').innerText = item.timeRange;
+    document.getElementById('detail-link').href = item.url || '#';
+    
+    const dateObj = new Date(item.timestamp);
+    document.getElementById('detail-date').innerText = dateObj.toLocaleString();
+
+    historyModal.classList.remove('hidden');
+}
+
+// Attach to global scope so HTML onclick works
+window.closeHistoryModal = function() {
+    historyModal.classList.add('hidden');
+};
+
+// --- FORM SUBMISSION LOGIC ---
+// ... (Keep existing time picker and submit logic) ...
+
 function initTimePickers() {
     const populate = (id, start, end, pad = false) => {
         const el = document.getElementById(id);
@@ -219,25 +298,17 @@ function initTimePickers() {
             el.appendChild(opt);
         }
     };
-
     populate('start-hour', 1, 12);
     populate('start-min', 0, 59, true);
     populate('end-hour', 1, 12);
     populate('end-min', 0, 59, true);
-
     const now = new Date();
     let h = now.getHours();
     let m = now.getMinutes();
-    
-    const setVal = (id, val) => { 
-        const el = document.getElementById(id);
-        if(el) el.value = val; 
-    };
-    
+    const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
     const endAmPm = h >= 12 ? 'PM' : 'AM';
     let endH = h % 12; endH = endH ? endH : 12;
     setVal('end-hour', endH); setVal('end-min', m.toString().padStart(2, '0')); setVal('end-ampm', endAmPm);
-
     const prev = new Date(now.getTime() - 60*60*1000);
     let ph = prev.getHours(); let pm = prev.getMinutes();
     const startAmPm = ph >= 12 ? 'PM' : 'AM';
@@ -245,45 +316,32 @@ function initTimePickers() {
     setVal('start-hour', startH); setVal('start-min', pm.toString().padStart(2, '0')); setVal('start-ampm', startAmPm);
 }
 
-// --- FORM SUBMISSION LOGIC ---
 function closeIframeModal() {
     iframeModal.classList.add('hidden');
     iframe.src = 'about:blank'; 
     submissionStage = 'idle';
-    
-    // Clear pending timer if user closes modal
-    if (autoSubmitTimer) {
-        clearTimeout(autoSubmitTimer);
-        autoSubmitTimer = null;
-    }
+    if (autoSubmitTimer) { clearTimeout(autoSubmitTimer); autoSubmitTimer = null; }
 }
-
-// Close button event
 document.querySelector('#iframe-modal button')?.addEventListener('click', closeIframeModal);
 
 googleForm.addEventListener('submit', (e) => {
     e.preventDefault();
-
     if (submissionStage !== 'idle') return; 
 
-    // 1. Validate Time
     const get24Hour = (h, m, ap) => {
         h = parseInt(h);
         if (ap === 'PM' && h < 12) h += 12;
         if (ap === 'AM' && h === 12) h = 0;
         return { h, m };
     };
-
     const sH = document.getElementById('start-hour').value;
     const sM = document.getElementById('start-min').value;
     const sAP = document.getElementById('start-ampm').value;
     const eH = document.getElementById('end-hour').value;
     const eM = document.getElementById('end-min').value;
     const eAP = document.getElementById('end-ampm').value;
-
     const startTime = get24Hour(sH, sM, sAP);
     const endTime = get24Hour(eH, eM, eAP);
-
     const startMinutes = (startTime.h * 60) + parseInt(startTime.m);
     const endMinutes = (endTime.h * 60) + parseInt(endTime.m);
     
@@ -293,7 +351,6 @@ googleForm.addEventListener('submit', (e) => {
     }
     document.getElementById('time-error').classList.add('hidden');
 
-    // 2. Prepare Hidden Data
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
     const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -310,14 +367,11 @@ googleForm.addEventListener('submit', (e) => {
     document.getElementById('hidden-end-mo').value = mm;
     document.getElementById('hidden-end-d').value = dd;
 
-    // 3. Capture History Metadata
     const issue = document.getElementById('explain-issue').value;
     const timeRange = `${sH}:${sM} ${sAP} - ${eH}:${eM} ${eAP}`;
     
-    // 4. Construct Preview URL
     const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/viewform";
     const params = new URLSearchParams();
-    
     params.append('entry.1005447471', document.getElementById('hidden-crm').value);
     params.append('entry.44222229', document.getElementById('hidden-name').value);
     params.append('entry.115861300', document.getElementById('hidden-tl').value);
@@ -336,25 +390,21 @@ googleForm.addEventListener('submit', (e) => {
     const reason = document.querySelector('input[name="entry.1231067802"]:checked').value;
     params.append('entry.1231067802', reason);
 
-    // 5. Open Preview
     submissionStage = 'previewing';
     const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
     iframe.src = finalUrl;
     iframeModal.classList.remove('hidden');
 
-    // Store metadata for post-submit logic
     googleForm.dataset.pendingIssue = issue;
     googleForm.dataset.pendingTime = timeRange;
     googleForm.dataset.prefilledUrl = finalUrl;
 
-    // 6. Schedule Auto-Submit (15 Seconds)
     autoSubmitTimer = setTimeout(() => {
         submissionStage = 'submitting';
         googleForm.submit(); 
     }, 15000);
 });
 
-// Iframe Load Handler
 iframe.onload = function() {
     if (submissionStage === 'previewing') {
         console.log("Preview Loaded");
@@ -362,34 +412,29 @@ iframe.onload = function() {
     else if (submissionStage === 'submitting') {
         console.log("Submission Complete");
         
-        // Save to History
         const issue = googleForm.dataset.pendingIssue;
         const time = googleForm.dataset.pendingTime;
         const url = googleForm.dataset.prefilledUrl;
         
         if(issue && time) {
-            saveToHistory(issue, time);
+            saveToHistory(issue, time, url); // SAVE URL NOW
             renderDashboard(); 
         }
 
-        // Show Success Modal after short delay
         setTimeout(() => {
-            closeIframeModal(); // This also clears the timer/state
+            closeIframeModal();
             showSuccessModal(url);
         }, 1000);
     }
 };
 
-// Success Modal Logic
 function showSuccessModal(prefilledUrl) {
     const modal = document.getElementById('success-modal');
     const content = document.getElementById('modal-content');
     modal.classList.remove('hidden');
-    
     setTimeout(() => {
         content.classList.remove('opacity-0', 'scale-95');
         content.classList.add('opacity-100', 'scale-100');
-        
         const linkContainer = document.getElementById('prefilled-link-container');
         const linkElement = document.getElementById('prefilled-link');
         if (prefilledUrl && linkContainer && linkElement) {
@@ -403,13 +448,10 @@ function showSuccessModal(prefilledUrl) {
 function closeModal() {
     const modal = document.getElementById('success-modal');
     const content = document.getElementById('modal-content');
-    
     content.classList.add('opacity-0', 'scale-95');
     content.classList.remove('opacity-100', 'scale-100');
-    
     setTimeout(() => {
         modal.classList.add('hidden');
-        // Return to Dashboard
         showScreen('dashboard-screen');
     }, 300);
 }

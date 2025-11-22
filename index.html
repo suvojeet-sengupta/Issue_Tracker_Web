@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issue Tracker - Suvojeet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .slide-in { animation: slideUp 0.4s ease-out forwards; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        
+        /* Success Animation */
+        .checkmark { width: 56px; height: 56px; border-radius: 50%; display: block; stroke-width: 2; stroke: #fff; stroke-miterlimit: 10; box-shadow: inset 0px 0px 0px #7ac142; animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both; }
+        .checkmark__circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 2; stroke-miterlimit: 10; stroke: #7ac142; fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+        .checkmark__check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+        @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 30px #7ac142; } }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-100 to-slate-300 min-h-screen flex flex-col items-center justify-center text-slate-800 p-4">
+
+    <!-- Hidden Iframe for Silent Submission -->
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+    <!-- MAIN CONTAINER -->
+    <div id="app-container" class="w-full max-w-md relative">
+        
+        <!-- SETUP SCREEN (Hidden by default via JS if data exists) -->
+        <div id="setup-screen" class="hidden slide-in">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 border border-slate-100">
+                <div class="text-center mb-8">
+                    <div class="bg-indigo-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
+                        <i data-lucide="settings-2" class="text-white w-8 h-8"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-slate-800">Initial Setup</h1>
+                    <p class="text-slate-500 text-sm mt-1">Configure your profile once.</p>
+                </div>
+
+                <form id="setup-form" class="space-y-5">
+                    <!-- CRM ID -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">CRM ID</label>
+                        <input type="number" id="setup-crm" class="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition font-mono" placeholder="e.g. 1210793" required>
+                    </div>
+
+                    <!-- Advisor Name -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Advisor Name</label>
+                        <input type="text" id="setup-name" class="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition" placeholder="Full Name" required>
+                        <p id="name-error" class="text-red-500 text-xs mt-1 hidden">Alphabets only please!</p>
+                    </div>
+
+                    <!-- Organization -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Organization</label>
+                        <select id="setup-org" class="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition appearance-none">
+                            <option value="DISH">DISH</option>
+                            <option value="D2H">D2H</option>
+                        </select>
+                    </div>
+
+                    <!-- Team Leader -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Team Leader</label>
+                        <select id="setup-tl" class="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                            <option value="Manish Kumar" selected>Manish Kumar</option>
+                            <option value="Aniket">Aniket</option>
+                            <option value="Imran Khan">Imran Khan</option>
+                            <option value="Ravi">Ravi</option>
+                            <option value="Gajendra">Gajendra</option>
+                            <option value="Suyash Upadhyay">Suyash Upadhyay</option>
+                            <option value="Randhir Kumar">Randhir Kumar</option>
+                            <option value="Subham Kumar">Subham Kumar</option>
+                            <option value="Karan">Karan</option>
+                            <option value="Rohit">Rohit</option>
+                            <option value="Shilpa">Shilpa</option>
+                            <option value="Vipin">Vipin</option>
+                            <option value="Sonu">Sonu</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Other TL Input (Hidden) -->
+                    <div id="other-tl-container" class="hidden">
+                        <input type="text" id="setup-tl-other" class="w-full px-4 py-3 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition" placeholder="Enter TL Name">
+                    </div>
+
+                    <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition shadow-lg transform active:scale-95">
+                        Save & Continue
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TRACKER SCREEN (Main) -->
+        <div id="tracker-screen" class="hidden slide-in pb-10">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <button id="reset-btn" class="p-2 bg-white rounded-full shadow hover:bg-slate-100 text-slate-600 transition">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </button>
+                <h2 class="text-xl font-bold text-slate-800">Fill Issue Tracker</h2>
+                <button class="p-2 bg-white rounded-full shadow hover:bg-slate-100 text-indigo-600 transition" onclick="alert('Tracker Logic v2.0\nSilent Submission Enabled!')">
+                    <i data-lucide="info" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Read Only Info Card -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-indigo-600 mb-5 flex flex-col gap-3">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <span class="text-xs text-slate-400 uppercase font-bold">CRM ID</span>
+                    <span id="disp-crm" class="font-mono font-bold text-slate-700">Loading...</span>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <span class="text-xs text-slate-400 uppercase font-bold">Advisor</span>
+                    <span id="disp-name" class="font-bold text-slate-700">Loading...</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-slate-400 uppercase font-bold">Team Leader</span>
+                    <span id="disp-tl" class="font-bold text-indigo-600">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Real Form targeting Hidden Iframe -->
+            <form id="google-form" 
+                  action="https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/formResponse" 
+                  method="POST" 
+                  target="hidden_iframe"
+                  class="space-y-4">
+                
+                <!-- Time Selection -->
+                <div class="bg-white rounded-xl p-5 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-indigo-500"></i> Time Selection
+                    </h3>
+                    
+                    <!-- Start Time -->
+                    <div class="grid grid-cols-1 gap-2">
+                        <label class="text-xs font-semibold text-slate-500">Start Time</label>
+                        <div class="flex gap-2">
+                            <select id="start-hour" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500"></select>
+                            <select id="start-min" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500"></select>
+                            <select id="start-ampm" class="bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500">
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- End Time -->
+                    <div class="grid grid-cols-1 gap-2">
+                        <label class="text-xs font-semibold text-slate-500">End Time</label>
+                        <div class="flex gap-2">
+                            <select id="end-hour" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500"></select>
+                            <select id="end-min" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500"></select>
+                            <select id="end-ampm" class="bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg px-2 py-2 w-full text-center font-bold outline-none focus:border-indigo-500">
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p id="time-error" class="text-red-500 text-xs font-bold hidden">End time must be after Start time!</p>
+                </div>
+
+                <!-- Issue Dropdown -->
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Explain Issue</label>
+                    <select name="entry.1211413190" id="explain-issue" class="w-full px-3 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                        <option value="System Hang / Voice Issue" selected>System Hang / Voice Issue</option>
+                        <option value="Electricity Issue/Power Failure">Electricity Issue/Power Failure</option>
+                        <option value="Head Phone Issue">Head Phone Issue</option>
+                        <option value="Wifi Stopped Working">Wifi Stopped Working</option>
+                        <option value="Voice Issue / Cx Voice Not Audible">Voice Issue / Cx Voice Not Audible</option>
+                        <option value="Mobile Phone Hang">Mobile Phone Hang</option>
+                        <option value="Auto Call Drop">Auto Call Drop</option>
+                        <option value="Aspect / WDE issue">Aspect / WDE issue</option>
+                        <option value="Mobile Network Connectivity">Mobile Network Connectivity</option>
+                    </select>
+                </div>
+
+                <!-- Reason Radio -->
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Reason</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                            <input type="radio" name="entry.1231067802" value="System issue (Network , Asset & Aspect /WDE issue)" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" checked>
+                            <span class="ml-2 text-sm text-slate-700">System issue (Network, Asset...)</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                            <input type="radio" name="entry.1231067802" value="Voice Issue" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                            <span class="ml-2 text-sm text-slate-700">Voice Issue</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Remarks -->
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Remarks (Optional)</label>
+                    <textarea id="remarks" rows="2" class="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 focus:outline-none text-sm" placeholder="Any specific details..."></textarea>
+                </div>
+
+                <!-- Hidden Fields for Google Form Submission -->
+                <input type="hidden" name="entry.1005447471" id="hidden-crm">
+                <input type="hidden" name="entry.44222229" id="hidden-name">
+                <input type="hidden" name="entry.115861300" id="hidden-tl">
+                <input type="hidden" name="entry.313975949" id="hidden-org">
+                
+                <!-- Start Time Parts -->
+                <input type="hidden" name="entry.1521239602_hour" id="hidden-start-h">
+                <input type="hidden" name="entry.1521239602_minute" id="hidden-start-m">
+                <!-- Start Date Parts -->
+                <input type="hidden" name="entry.702818104_year" id="hidden-start-y">
+                <input type="hidden" name="entry.702818104_month" id="hidden-start-mo">
+                <input type="hidden" name="entry.702818104_day" id="hidden-start-d">
+
+                <!-- End Time Parts -->
+                <input type="hidden" name="entry.701130970_hour" id="hidden-end-h">
+                <input type="hidden" name="entry.701130970_minute" id="hidden-end-m">
+                <!-- End Date Parts -->
+                <input type="hidden" name="entry.514450388_year" id="hidden-end-y">
+                <input type="hidden" name="entry.514450388_month" id="hidden-end-mo">
+                <input type="hidden" name="entry.514450388_day" id="hidden-end-d">
+
+
+                <!-- Submit Button -->
+                <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-4 rounded-xl shadow-xl shadow-indigo-200 transform active:scale-95 transition flex items-center justify-center gap-2">
+                    <span id="btn-text">Submit Issue</span>
+                    <i data-lucide="send" id="btn-icon" class="w-4 h-4"></i>
+                </button>
+
+            </form>
+
+            <div class="text-center mt-8 text-slate-400 text-xs font-medium">
+                Made by <span class="text-indigo-500">Suvojeet</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUCCESS MODAL -->
+    <div id="success-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+        <div class="bg-white rounded-3xl p-8 shadow-2xl transform scale-95 opacity-0 transition-all duration-300 z-10 text-center w-80 relative" id="modal-content">
+            <div class="flex justify-center mb-4">
+                <div class="checkmark-wrapper">
+                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Submit Ho Gaya!</h3>
+            <p class="text-slate-500 text-sm mb-6">Issue has been tracked successfully. Chill kar ab.</p>
+            <button onclick="closeModal()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold shadow-lg">Okay, Thanks</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // --- CONFIGURATION ---
+        const setupScreen = document.getElementById('setup-screen');
+        const trackerScreen = document.getElementById('tracker-screen');
+        const setupForm = document.getElementById('setup-form');
+        
+        // Setup Inputs
+        const crmInput = document.getElementById('setup-crm');
+        const nameInput = document.getElementById('setup-name');
+        const orgInput = document.getElementById('setup-org');
+        const tlInput = document.getElementById('setup-tl');
+        const otherTlContainer = document.getElementById('other-tl-container');
+        const otherTlInput = document.getElementById('setup-tl-other');
+
+        // --- INITIAL LOAD LOGIC ---
+        const savedConfig = localStorage.getItem('trackerConfig');
+        
+        if (savedConfig) {
+            loadTracker(JSON.parse(savedConfig));
+        } else {
+            setupScreen.classList.remove('hidden');
+        }
+
+        // --- SETUP MAGIC LOGIC ---
+        crmInput.addEventListener('input', (e) => {
+            if (e.target.value === '1210793') {
+                nameInput.value = "Suvojeet Sengupta";
+                tlInput.value = "Manish Kumar";
+                orgInput.value = "DISH";
+                otherTlContainer.classList.add('hidden');
+                crmInput.classList.add('bg-green-50', 'border-green-500');
+                setTimeout(() => { setupForm.requestSubmit(); }, 500);
+            }
+        });
+
+        tlInput.addEventListener('change', (e) => {
+            if (e.target.value === 'Other') {
+                otherTlContainer.classList.remove('hidden');
+                otherTlInput.required = true;
+            } else {
+                otherTlContainer.classList.add('hidden');
+                otherTlInput.required = false;
+            }
+        });
+
+        nameInput.addEventListener('input', (e) => {
+            const regex = /^[a-zA-Z ]+$/;
+            const err = document.getElementById('name-error');
+            if (!regex.test(e.target.value) && e.target.value !== '') {
+                err.classList.remove('hidden');
+                e.target.classList.add('border-red-500');
+            } else {
+                err.classList.add('hidden');
+                e.target.classList.remove('border-red-500');
+            }
+        });
+
+        setupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const regex = /^[a-zA-Z ]+$/;
+            if (!regex.test(nameInput.value)) { alert("Advisor name must be alphabets only!"); return; }
+            const finalTL = tlInput.value === 'Other' ? otherTlInput.value : tlInput.value;
+            const config = { crm: crmInput.value, name: nameInput.value, org: orgInput.value, tl: finalTL };
+            localStorage.setItem('trackerConfig', JSON.stringify(config));
+            loadTracker(config);
+        });
+
+        function loadTracker(config) {
+            setupScreen.classList.add('hidden');
+            trackerScreen.classList.remove('hidden');
+            document.getElementById('disp-crm').innerText = config.crm;
+            document.getElementById('disp-name').innerText = config.name;
+            document.getElementById('disp-tl').innerText = config.tl;
+            
+            // Pre-fill Hidden fields
+            document.getElementById('hidden-crm').value = config.crm;
+            document.getElementById('hidden-name').value = config.name;
+            document.getElementById('hidden-tl').value = config.tl;
+            document.getElementById('hidden-org').value = config.org;
+
+            initTimePickers();
+        }
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            if(confirm("Reset your setup details?")) {
+                localStorage.removeItem('trackerConfig');
+                location.reload();
+            }
+        });
+
+        function initTimePickers() {
+            const populate = (id, start, end, pad = false) => {
+                const el = document.getElementById(id);
+                el.innerHTML = '';
+                for(let i=start; i<=end; i++) {
+                    let val = pad ? i.toString().padStart(2, '0') : i;
+                    let opt = document.createElement('option');
+                    opt.value = val;
+                    opt.text = val;
+                    el.appendChild(opt);
+                }
+            };
+
+            populate('start-hour', 1, 12);
+            populate('start-min', 0, 59, true);
+            populate('end-hour', 1, 12);
+            populate('end-min', 0, 59, true);
+
+            const now = new Date();
+            let h = now.getHours();
+            let m = now.getMinutes();
+            
+            const setVal = (id, val) => document.getElementById(id).value = val;
+            
+            const endAmPm = h >= 12 ? 'PM' : 'AM';
+            let endH = h % 12; endH = endH ? endH : 12;
+            setVal('end-hour', endH); setVal('end-min', m.toString().padStart(2, '0')); setVal('end-ampm', endAmPm);
+
+            const prev = new Date(now.getTime() - 60*60*1000);
+            let ph = prev.getHours(); let pm = prev.getMinutes();
+            const startAmPm = ph >= 12 ? 'PM' : 'AM';
+            let startH = ph % 12; startH = startH ? startH : 12;
+            setVal('start-hour', startH); setVal('start-min', pm.toString().padStart(2, '0')); setVal('start-ampm', startAmPm);
+        }
+
+        // --- SILENT SUBMISSION LOGIC ---
+        const googleForm = document.getElementById('google-form');
+        const iframe = document.getElementById('hidden_iframe');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnIcon = document.getElementById('btn-icon');
+        let submitted = false;
+
+        googleForm.addEventListener('submit', (e) => {
+            
+            // 1. Time Validation
+            const get24Hour = (h, m, ap) => {
+                h = parseInt(h);
+                if (ap === 'PM' && h < 12) h += 12;
+                if (ap === 'AM' && h === 12) h = 0;
+                return { h, m };
+            };
+
+            const sH = document.getElementById('start-hour').value;
+            const sM = document.getElementById('start-min').value;
+            const sAP = document.getElementById('start-ampm').value;
+            const eH = document.getElementById('end-hour').value;
+            const eM = document.getElementById('end-min').value;
+            const eAP = document.getElementById('end-ampm').value;
+
+            const startTime = get24Hour(sH, sM, sAP);
+            const endTime = get24Hour(eH, eM, eAP);
+
+            const startMinutes = (startTime.h * 60) + parseInt(startTime.m);
+            const endMinutes = (endTime.h * 60) + parseInt(endTime.m);
+            
+            if (endMinutes <= startMinutes) {
+                e.preventDefault();
+                document.getElementById('time-error').classList.remove('hidden');
+                return; 
+            }
+            document.getElementById('time-error').classList.add('hidden');
+
+            // 2. Prepare Hidden Data for Google
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+
+            // Fill Time Hidden Inputs
+            document.getElementById('hidden-start-h').value = startTime.h; // 24h format safer for numeric input
+            document.getElementById('hidden-start-m').value = sM;
+            document.getElementById('hidden-end-h').value = endTime.h;
+            document.getElementById('hidden-end-m').value = eM;
+
+            // Fill Date Hidden Inputs
+            document.getElementById('hidden-start-y').value = yyyy;
+            document.getElementById('hidden-start-mo').value = mm;
+            document.getElementById('hidden-start-d').value = dd;
+            document.getElementById('hidden-end-y').value = yyyy;
+            document.getElementById('hidden-end-mo').value = mm;
+            document.getElementById('hidden-end-d').value = dd;
+
+            // 3. UI Feedback (Submitting...)
+            submitted = true;
+            submitBtn.disabled = true;
+            btnText.innerText = "Saving...";
+            btnIcon.style.display = 'none';
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // Form continues to submit to iframe...
+        });
+
+        // 4. Detect Iframe Load (Success)
+        iframe.onload = function() {
+            if (submitted) {
+                // Reset UI
+                submitted = false;
+                submitBtn.disabled = false;
+                btnText.innerText = "Submit Issue";
+                btnIcon.style.display = 'block';
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                
+                // Show Success Modal
+                showSuccessModal();
+            }
+        };
+
+        function showSuccessModal() {
+            const modal = document.getElementById('success-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            // Trigger animation
+            setTimeout(() => {
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('success-modal');
+            const content = document.getElementById('modal-content');
+            
+            content.classList.add('opacity-0', 'scale-95');
+            content.classList.remove('opacity-100', 'scale-100');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                // Reset form fields if you want?
+                // document.getElementById('explain-issue').selectedIndex = 0;
+            }, 300);
+        }
+
+    </script>
+</body>
+</html>

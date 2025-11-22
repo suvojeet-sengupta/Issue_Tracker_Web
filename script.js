@@ -218,7 +218,7 @@ googleForm.addEventListener('submit', (e) => {
     // 4. Start "Preview" Phase
     submissionStage = 'previewing';
     iframeModal.classList.remove('hidden');
-    iframe.src = `${baseUrl}?${params.toString()}`;
+    iframe.src = `${baseUrl}?${params.toString()}&usp=pp_url`;
     
     // 5. Schedule Auto-Submit
     setTimeout(() => {

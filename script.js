@@ -122,11 +122,19 @@ setupForm.addEventListener('submit', (e) => {
 });
 
 function loadApp(config) {
-    // Update Read-Only Display (in Tracker Screen)
+    // Update Tracker Screen Info
     document.getElementById('disp-crm').innerText = config.crm;
     document.getElementById('disp-name').innerText = config.name;
     document.getElementById('disp-tl').innerText = config.tl;
+    document.getElementById('bar-avatar').innerText = config.name.charAt(0).toUpperCase();
     
+    // Update Dashboard Profile Card
+    document.getElementById('disp-name-card').innerText = config.name;
+    document.getElementById('disp-crm-card').innerText = config.crm;
+    document.getElementById('disp-org-card').innerText = config.org;
+    document.getElementById('disp-tl-card').innerText = config.tl;
+    document.getElementById('avatar-initials').innerText = config.name.charAt(0).toUpperCase();
+
     // Fill Hidden Inputs for Form
     document.getElementById('hidden-crm').value = config.crm;
     document.getElementById('hidden-name').value = config.name;
@@ -152,7 +160,7 @@ function renderDashboard() {
     // Update History List
     historyList.innerHTML = '';
     if (history.length === 0) {
-        historyList.innerHTML = '<div class="text-center text-slate-400 text-sm py-4">No history yet. Start tracking!</div>';
+        historyList.innerHTML = '<div class="text-center text-slate-400 text-sm py-8 italic">No history yet. Start tracking!</div>';
         return;
     }
 
@@ -160,20 +168,25 @@ function renderDashboard() {
     
     sortedHistory.forEach(item => {
         const el = document.createElement('div');
-        el.className = 'bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between';
+        el.className = 'bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow';
         
         const dateObj = new Date(item.timestamp);
         const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const dateStr = dateObj.toLocaleDateString([], { day: 'numeric', month: 'short' });
+        const dateStr = dateObj.toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' });
 
         el.innerHTML = `
-            <div>
-                <div class="text-xs text-slate-400 font-bold uppercase mb-1">${dateStr} • ${timeStr}</div>
-                <div class="font-bold text-slate-700 text-sm">${item.issue}</div>
-                <div class="text-xs text-slate-500 truncate max-w-[200px]">${item.timeRange}</div>
+            <div class="flex items-start gap-4">
+                <div class="bg-indigo-50 p-3 rounded-full hidden md:block">
+                    <i data-lucide="check-circle-2" class="w-5 h-5 text-indigo-600"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-slate-800 text-base">${item.issue}</div>
+                    <div class="text-xs text-slate-500 font-mono mt-1">${item.timeRange}</div>
+                </div>
             </div>
-            <div class="bg-green-100 text-green-600 p-2 rounded-full">
-                <i data-lucide="check" class="w-4 h-4"></i>
+            <div class="text-right">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">${dateStr}</div>
+                <div class="text-xs text-slate-400">${timeStr}</div>
             </div>
         `;
         historyList.appendChild(el);

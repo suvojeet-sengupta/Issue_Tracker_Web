@@ -101,16 +101,61 @@
             </div>
         </div>
 
+        <!-- DASHBOARD SCREEN -->
+        <div id="dashboard-screen" class="hidden slide-in pb-10">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-100 p-2 rounded-full text-indigo-600">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800">Dashboard</h2>
+                </div>
+                <button id="settings-btn" class="p-2 bg-white rounded-full shadow hover:bg-slate-100 text-slate-400 transition">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                     <p class="text-xs text-slate-400 uppercase font-bold">Total Issues</p>
+                     <h3 class="text-3xl font-bold text-indigo-600" id="stat-total">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                     <p class="text-xs text-slate-400 uppercase font-bold">Today</p>
+                     <h3 class="text-3xl font-bold text-purple-600" id="stat-today">0</h3>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <button id="new-issue-btn" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-slate-800 transition mb-8 flex items-center justify-center gap-2 transform active:scale-95">
+                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                Fill New Issue
+            </button>
+
+            <!-- History List -->
+            <div>
+                <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <i data-lucide="history" class="w-4 h-4 text-slate-400"></i> Recent History
+                </h3>
+                <div id="history-list" class="space-y-3 pb-20">
+                    <!-- History items will be injected here -->
+                    <div class="text-center text-slate-400 text-sm py-4">No history yet. Start tracking!</div>
+                </div>
+            </div>
+        </div>
+
         <!-- TRACKER SCREEN (Main) -->
         <div id="tracker-screen" class="hidden slide-in pb-10">
             
             <!-- Header -->
             <div class="flex items-center justify-between mb-6">
-                <button id="reset-btn" class="p-2 bg-white rounded-full shadow hover:bg-slate-100 text-slate-600 transition">
+                <button id="back-btn" class="p-2 bg-white rounded-full shadow hover:bg-slate-100 text-slate-600 transition">
                     <i data-lucide="arrow-left" class="w-5 h-5"></i>
                 </button>
-                <h2 class="text-xl font-bold text-slate-800">Fill Issue Tracker</h2>
-                <button class="p-2 bg-white rounded-full shadow hover:bg-slate-100 text-indigo-600 transition" onclick="alert('Tracker Logic v2.0\nSilent Submission Enabled!')">
+                <h2 class="text-xl font-bold text-slate-800">Fill Issue</h2>
+                <button class="p-2 bg-white rounded-full shadow hover:bg-slate-100 text-indigo-600 transition" onclick="alert('Tracker Logic v2.1\nAuto-History Enabled!')">
                     <i data-lucide="info" class="w-5 h-5"></i>
                 </button>
             </div>

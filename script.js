@@ -3,6 +3,7 @@ lucide.createIcons();
 
 // --- CONFIGURATION ---
 const setupScreen = document.getElementById('setup-screen');
+const dashboardScreen = document.getElementById('dashboard-screen');
 const trackerScreen = document.getElementById('tracker-screen');
 const setupForm = document.getElementById('setup-form');
 
@@ -14,14 +15,46 @@ const tlInput = document.getElementById('setup-tl');
 const otherTlContainer = document.getElementById('other-tl-container');
 const otherTlInput = document.getElementById('setup-tl-other');
 
+// Dashboard Elements
+const statTotal = document.getElementById('stat-total');
+const statToday = document.getElementById('stat-today');
+const historyList = document.getElementById('history-list');
+
 // --- INITIAL LOAD LOGIC ---
 const savedConfig = localStorage.getItem('trackerConfig');
 
 if (savedConfig) {
-    loadTracker(JSON.parse(savedConfig));
+    loadApp(JSON.parse(savedConfig));
 } else {
     setupScreen.classList.remove('hidden');
 }
+
+// --- NAVIGATION LOGIC ---
+function showScreen(screenId) {
+    [setupScreen, dashboardScreen, trackerScreen].forEach(s => s.classList.add('hidden'));
+    document.getElementById(screenId).classList.remove('hidden');
+    // Re-trigger animation
+    document.getElementById(screenId).classList.remove('slide-in');
+    void document.getElementById(screenId).offsetWidth; // trigger reflow
+    document.getElementById(screenId).classList.add('slide-in');
+}
+
+document.getElementById('new-issue-btn').addEventListener('click', () => {
+    showScreen('tracker-screen');
+    initTimePickers(); // Reset times on new entry
+});
+
+document.getElementById('back-btn').addEventListener('click', () => {
+    showScreen('dashboard-screen');
+    renderDashboard();
+});
+
+document.getElementById('settings-btn').addEventListener('click', () => {
+    if(confirm("Reset your setup details? This will NOT delete your history.")) {
+        localStorage.removeItem('trackerConfig');
+        location.reload();
+    }
+});
 
 // --- SETUP MAGIC LOGIC ---
 crmInput.addEventListener('input', (e) => {
@@ -64,31 +97,79 @@ setupForm.addEventListener('submit', (e) => {
     const finalTL = tlInput.value === 'Other' ? otherTlInput.value : tlInput.value;
     const config = { crm: crmInput.value, name: nameInput.value, org: orgInput.value, tl: finalTL };
     localStorage.setItem('trackerConfig', JSON.stringify(config));
-    loadTracker(config);
+    loadApp(config);
 });
 
-function loadTracker(config) {
-    setupScreen.classList.add('hidden');
-    trackerScreen.classList.remove('hidden');
+function loadApp(config) {
+    // Save config to hidden fields
     document.getElementById('disp-crm').innerText = config.crm;
     document.getElementById('disp-name').innerText = config.name;
     document.getElementById('disp-tl').innerText = config.tl;
     
-    // Pre-fill Hidden fields
     document.getElementById('hidden-crm').value = config.crm;
     document.getElementById('hidden-name').value = config.name;
     document.getElementById('hidden-tl').value = config.tl;
     document.getElementById('hidden-org').value = config.org;
 
-    initTimePickers();
+    // Go to Dashboard
+    showScreen('dashboard-screen');
+    renderDashboard();
 }
 
-document.getElementById('reset-btn').addEventListener('click', () => {
-    if(confirm("Reset your setup details?")) {
-        localStorage.removeItem('trackerConfig');
-        location.reload();
+// --- DASHBOARD LOGIC ---
+function renderDashboard() {
+    const history = JSON.parse(localStorage.getItem('trackerHistory') || '[]');
+    
+    // Stats
+    statTotal.innerText = history.length;
+    
+    const todayStr = new Date().toDateString();
+    const todayCount = history.filter(h => new Date(h.timestamp).toDateString() === todayStr).length;
+    statToday.innerText = todayCount;
+
+    // History List
+    historyList.innerHTML = '';
+    if (history.length === 0) {
+        historyList.innerHTML = '<div class="text-center text-slate-400 text-sm py-4">No history yet. Start tracking!</div>';
+        return;
     }
-});
+
+    // Sort by newest first
+    const sortedHistory = [...history].reverse();
+
+    sortedHistory.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between';
+        
+        const dateObj = new Date(item.timestamp);
+        const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dateStr = dateObj.toLocaleDateString([], { day: 'numeric', month: 'short' });
+
+        el.innerHTML = `
+            <div>
+                <div class="text-xs text-slate-400 font-bold uppercase mb-1">${dateStr} • ${timeStr}</div>
+                <div class="font-bold text-slate-700 text-sm">${item.issue}</div>
+                <div class="text-xs text-slate-500 truncate max-w-[200px]">${item.timeRange}</div>
+            </div>
+            <div class="bg-green-100 text-green-600 p-2 rounded-full">
+                <i data-lucide="check" class="w-4 h-4"></i>
+            </div>
+        `;
+        historyList.appendChild(el);
+    });
+    
+    lucide.createIcons();
+}
+
+function saveToHistory(issue, timeRange) {
+    const history = JSON.parse(localStorage.getItem('trackerHistory') || '[]');
+    history.push({
+        timestamp: new Date().toISOString(),
+        issue: issue,
+        timeRange: timeRange
+    });
+    localStorage.setItem('trackerHistory', JSON.stringify(history));
+}
 
 function initTimePickers() {
     const populate = (id, start, end, pad = false) => {
@@ -112,7 +193,10 @@ function initTimePickers() {
     let h = now.getHours();
     let m = now.getMinutes();
     
-    const setVal = (id, val) => document.getElementById(id).value = val;
+    const setVal = (id, val) => { 
+        const el = document.getElementById(id);
+        if(el) el.value = val; 
+    };
     
     const endAmPm = h >= 12 ? 'PM' : 'AM';
     let endH = h % 12; endH = endH ? endH : 12;
@@ -187,6 +271,10 @@ googleForm.addEventListener('submit', (e) => {
     document.getElementById('hidden-end-mo').value = mm;
     document.getElementById('hidden-end-d').value = dd;
 
+    // Capture Data for History
+    const issue = document.getElementById('explain-issue').value;
+    const timeRange = `${sH}:${sM} ${sAP} - ${eH}:${eM} ${eAP}`;
+    
     // 3. Construct Pre-filled URL for Preview
     const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/viewform";
     const params = new URLSearchParams();
@@ -208,40 +296,49 @@ googleForm.addEventListener('submit', (e) => {
     params.append('entry.514450388_month', mm);
     params.append('entry.514450388_day', dd);
     
-    params.append('entry.1211413190', document.getElementById('explain-issue').value);
+    params.append('entry.1211413190', issue);
     // Radio button value
     const reason = document.querySelector('input[name="entry.1231067802"]:checked').value;
     params.append('entry.1231067802', reason);
-    // Remarks (no entry ID in mapping? Assuming no Remarks field in mapping list, skipping or adding if known)
-    // If remarks had an ID, we'd add it here.
     
     // 4. Start "Preview" Phase
     submissionStage = 'previewing';
     iframeModal.classList.remove('hidden');
-    iframe.src = `${baseUrl}?${params.toString()}&usp=pp_url`;
+    const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
+    iframe.src = finalUrl;
     
+    // Store data to save after success
+    googleForm.dataset.pendingIssue = issue;
+    googleForm.dataset.pendingTime = timeRange;
+    googleForm.dataset.prefilledUrl = finalUrl;
+
     // 5. Schedule Auto-Submit
     setTimeout(() => {
         submissionStage = 'submitting';
         googleForm.submit(); // This performs the actual POST
-    }, 15000); // 15 seconds delay to "see" the form
+    }, 15000); // 15 seconds delay
 });
 
 // 4. Detect Iframe Load
 iframe.onload = function() {
     if (submissionStage === 'previewing') {
-        // The Preview (viewform) just loaded.
-        // We are waiting for the timeout to trigger the POST.
         console.log("Preview Loaded");
     } 
     else if (submissionStage === 'submitting') {
-        // The POST response (formResponse) just loaded.
-        // This means submission is complete.
         console.log("Submission Complete");
         
+        // Save History Here
+        const issue = googleForm.dataset.pendingIssue;
+        const time = googleForm.dataset.pendingTime;
+        const url = googleForm.dataset.prefilledUrl;
+        if(issue && time) {
+            saveToHistory(issue, time);
+            renderDashboard(); // Update dashboard silently
+        }
+
         setTimeout(() => {
             closeIframeModal();
-            showSuccessModal(iframe.src); // Pass the final URL of the iframe (which is the pre-filled link)
+            showSuccessModal(url);
         }, 1000);
     }
 };
@@ -260,7 +357,7 @@ function showSuccessModal(prefilledUrl) {
         const linkElement = document.getElementById('prefilled-link');
         if (prefilledUrl && linkContainer && linkElement) {
             linkElement.href = prefilledUrl;
-            linkElement.textContent = prefilledUrl;
+            linkElement.textContent = "View Submitted Form Link";
             linkContainer.classList.remove('hidden');
         }
     }, 10);
@@ -275,8 +372,7 @@ function closeModal() {
     
     setTimeout(() => {
         modal.classList.add('hidden');
-        // Clear the link when closing the modal
-        const linkContainer = document.getElementById('prefilled-link-container');
-        if (linkContainer) linkContainer.classList.add('hidden');
+        // Go back to dashboard after closing success modal
+        showScreen('dashboard-screen');
     }, 300);
 }

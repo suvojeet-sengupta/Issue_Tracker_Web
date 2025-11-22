@@ -41,7 +41,7 @@ export const TrackerScreen = {
             }
             document.getElementById('time-error').classList.add('hidden');
 
-            // Prepare Data
+            // Prepare Data for POST
             const today = new Date();
             const dd = String(today.getDate()).padStart(2, '0');
             const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -58,22 +58,27 @@ export const TrackerScreen = {
             document.getElementById('hidden-end-mo').value = mm;
             document.getElementById('hidden-end-d').value = dd;
 
-            // Metadata
+            // Metadata & Preview Data
+            const config = Storage.getConfig();
             const issue = document.getElementById('explain-issue').value;
             const timeRange = `${sH}:${sM} ${sAP} - ${eH}:${eM} ${eAP}`;
             const reason = document.querySelector('input[name="entry.1231067802"]:checked').value;
 
-            // Construct URL
+            // --- POPULATE CUSTOM PREVIEW CARD ---
+            document.getElementById('preview-crm').innerText = config.crm;
+            document.getElementById('preview-name').innerText = config.name;
+            document.getElementById('preview-time').innerText = timeRange;
+            document.getElementById('preview-issue').innerText = issue;
+            document.getElementById('preview-reason').innerText = reason;
+
+            // Construct URL (Just for saving to history)
             const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/viewform";
             const params = new URLSearchParams();
-            const config = Storage.getConfig();
-
+            
             params.append('entry.1005447471', config.crm);
             params.append('entry.44222229', config.name);
             params.append('entry.115861300', config.tl);
             params.append('entry.313975949', config.org);
-            
-            // ... (Add all other params as before) ...
             params.append('entry.1521239602_hour', startTime.h);
             params.append('entry.1521239602_minute', sM);
             params.append('entry.701130970_hour', endTime.h);
@@ -87,10 +92,10 @@ export const TrackerScreen = {
             params.append('entry.1211413190', issue);
             params.append('entry.1231067802', reason);
 
-            // Start Preview
-            TrackerScreen.submissionStage = 'previewing';
             const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
-            iframe.src = finalUrl;
+
+            // Show Custom Preview Modal
+            TrackerScreen.submissionStage = 'previewing';
             iframeModal.classList.remove('hidden');
 
             // Store for later
@@ -98,18 +103,16 @@ export const TrackerScreen = {
             form.dataset.pendingTime = timeRange;
             form.dataset.prefilledUrl = finalUrl;
 
-            // 5s Delay
+            // 5s Delay before ACTUAL Submission
             TrackerScreen.autoSubmitTimer = setTimeout(() => {
                 TrackerScreen.submissionStage = 'submitting';
-                form.submit();
+                form.submit(); // POST to hidden iframe
             }, 5000);
         });
 
-        // Iframe Load
+        // Iframe Load (Triggers only after form.submit() response)
         iframe.onload = function() {
-            if (TrackerScreen.submissionStage === 'previewing') {
-                console.log("Preview Loaded");
-            } else if (TrackerScreen.submissionStage === 'submitting') {
+            if (TrackerScreen.submissionStage === 'submitting') {
                 console.log("Submission Complete");
                 
                 const issue = form.dataset.pendingIssue;
@@ -127,7 +130,7 @@ export const TrackerScreen = {
                         // After success modal closes, go to dashboard
                         Helpers.showScreen('dashboard-screen');
                     });
-                }, 1000);
+                }, 500);
             }
         };
 

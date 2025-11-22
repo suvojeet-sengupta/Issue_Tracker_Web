@@ -75,6 +75,8 @@ export const TrackerScreen = {
             const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/viewform";
             const params = new URLSearchParams();
             
+            // ... (existing params logic is fine, this replace block targets insertion point) ...
+
             params.append('entry.1005447471', config.crm);
             params.append('entry.44222229', config.name);
             params.append('entry.115861300', config.tl);
@@ -91,6 +93,21 @@ export const TrackerScreen = {
             params.append('entry.514450388_day', dd);
             params.append('entry.1211413190', issue);
             params.append('entry.1231067802', reason);
+
+            // --- RESET MODAL UI ---
+            document.getElementById('modal-header-title').innerText = "Processing Submission...";
+            document.getElementById('modal-header-desc').innerText = "Review details while we submit.";
+            
+            const spinnerContainer = document.getElementById('modal-spinner-container');
+            spinnerContainer.className = "w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center transition-colors duration-300";
+            spinnerContainer.innerHTML = `<i data-lucide="loader-2" class="animate-spin w-5 h-5 text-indigo-600"></i>`;
+            
+            const actionBtn = document.getElementById('modal-cancel-btn');
+            actionBtn.innerText = "Cancel";
+            actionBtn.className = "text-xs font-bold text-red-400 hover:text-red-600 transition uppercase tracking-wide";
+            actionBtn.onclick = TrackerScreen.closeIframeModal;
+            
+            lucide.createIcons();
 
             // Start Loading Preview
             TrackerScreen.submissionStage = 'loading_preview'; // WAIT FOR LOAD
@@ -123,6 +140,7 @@ export const TrackerScreen = {
                 // Submission Response Loaded
                 console.log("Submission Complete");
                 
+                // 1. Save History
                 const issue = form.dataset.pendingIssue;
                 const time = form.dataset.pendingTime;
                 const url = form.dataset.prefilledUrl;
@@ -132,13 +150,27 @@ export const TrackerScreen = {
                     window.dispatchEvent(new CustomEvent('app:historyUpdated'));
                 }
 
-                setTimeout(() => {
+                // 2. Update Modal UI for Manual Confirmation
+                document.getElementById('modal-header-title').innerText = "Submission Successful!";
+                document.getElementById('modal-header-desc').innerText = "Google Form response recorded.";
+                
+                const spinnerContainer = document.getElementById('modal-spinner-container');
+                spinnerContainer.className = "w-10 h-10 bg-green-100 rounded-full flex items-center justify-center transition-colors duration-300";
+                spinnerContainer.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-green-600"></i>`;
+                
+                const actionBtn = document.getElementById('modal-cancel-btn');
+                actionBtn.innerText = "Continue";
+                actionBtn.className = "px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition shadow-lg shadow-green-600/20";
+                
+                // Override Close Behavior
+                actionBtn.onclick = () => {
                     TrackerScreen.closeIframeModal();
                     Modals.showSuccess(url, () => {
-                        // After success modal closes, go to dashboard
                         Helpers.showScreen('dashboard-screen');
                     });
-                }, 2000); // Wait 2s so user sees "Response Recorded"
+                };
+
+                lucide.createIcons();
             }
         };
 

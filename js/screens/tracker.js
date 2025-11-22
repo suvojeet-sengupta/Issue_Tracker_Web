@@ -111,7 +111,9 @@ export const TrackerScreen = {
 
             // Start Loading Preview
             TrackerScreen.submissionStage = 'loading_preview'; // WAIT FOR LOAD
-            const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
+            
+            // Add pageHistory=0 and timestamp to bust cache/drafts
+            const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url&pageHistory=0&_=${Date.now()}`;
             
             // Load the Visual Preview in the Iframe
             iframe.src = finalUrl;

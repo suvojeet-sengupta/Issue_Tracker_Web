@@ -241,12 +241,12 @@ iframe.onload = function() {
         
         setTimeout(() => {
             closeIframeModal();
-            showSuccessModal();
+            showSuccessModal(iframe.src); // Pass the final URL of the iframe (which is the pre-filled link)
         }, 1000);
     }
 };
 
-function showSuccessModal() {
+function showSuccessModal(prefilledUrl) {
     const modal = document.getElementById('success-modal');
     const content = document.getElementById('modal-content');
     modal.classList.remove('hidden');
@@ -254,6 +254,15 @@ function showSuccessModal() {
     setTimeout(() => {
         content.classList.remove('opacity-0', 'scale-95');
         content.classList.add('opacity-100', 'scale-100');
+        
+        // Display the prefilled link
+        const linkContainer = document.getElementById('prefilled-link-container');
+        const linkElement = document.getElementById('prefilled-link');
+        if (prefilledUrl && linkContainer && linkElement) {
+            linkElement.href = prefilledUrl;
+            linkElement.textContent = prefilledUrl;
+            linkContainer.classList.remove('hidden');
+        }
     }, 10);
 }
 
@@ -266,7 +275,8 @@ function closeModal() {
     
     setTimeout(() => {
         modal.classList.add('hidden');
-        // Reset form fields if you want?
-        // document.getElementById('explain-issue').selectedIndex = 0;
+        // Clear the link when closing the modal
+        const linkContainer = document.getElementById('prefilled-link-container');
+        if (linkContainer) linkContainer.classList.add('hidden');
     }, 300);
 }

@@ -125,13 +125,15 @@ function initTimePickers() {
     setVal('start-hour', startH); setVal('start-min', pm.toString().padStart(2, '0')); setVal('start-ampm', startAmPm);
 }
 
-// --- SILENT SUBMISSION LOGIC ---
+// --- VISUAL SUBMISSION LOGIC ---
 const googleForm = document.getElementById('google-form');
 const iframe = document.getElementById('hidden_iframe');
-const submitBtn = document.getElementById('submit-btn');
-const btnText = document.getElementById('btn-text');
-const btnIcon = document.getElementById('btn-icon');
-let submitted = false;
+const iframeModal = document.getElementById('iframe-modal');
+let isSubmitting = false;
+
+function closeIframeModal() {
+    iframeModal.classList.add('hidden');
+}
 
 googleForm.addEventListener('submit', (e) => {
     
@@ -170,7 +172,7 @@ googleForm.addEventListener('submit', (e) => {
     const yyyy = today.getFullYear();
 
     // Fill Time Hidden Inputs
-    document.getElementById('hidden-start-h').value = startTime.h; // 24h format safer for numeric input
+    document.getElementById('hidden-start-h').value = startTime.h;
     document.getElementById('hidden-start-m').value = sM;
     document.getElementById('hidden-end-h').value = endTime.h;
     document.getElementById('hidden-end-m').value = eM;
@@ -183,28 +185,25 @@ googleForm.addEventListener('submit', (e) => {
     document.getElementById('hidden-end-mo').value = mm;
     document.getElementById('hidden-end-d').value = dd;
 
-    // 3. UI Feedback (Submitting...)
-    submitted = true;
-    submitBtn.disabled = true;
-    btnText.innerText = "Saving...";
-    btnIcon.style.display = 'none';
-    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-
+    // 3. Open Iframe Modal (Visual Feedback)
+    isSubmitting = true;
+    iframeModal.classList.remove('hidden');
+    
     // Form continues to submit to iframe...
 });
 
 // 4. Detect Iframe Load (Success)
 iframe.onload = function() {
-    if (submitted) {
-        // Reset UI
-        submitted = false;
-        submitBtn.disabled = false;
-        btnText.innerText = "Submit Issue";
-        btnIcon.style.display = 'block';
-        submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+    if (isSubmitting) {
+        isSubmitting = false;
         
-        // Show Success Modal
-        showSuccessModal();
+        // Wait a moment so user sees the "Response Recorded" page briefly? 
+        // Or close immediately to show success animation?
+        // Let's close it after 1 second to give a sense of completion.
+        setTimeout(() => {
+            closeIframeModal();
+            showSuccessModal();
+        }, 1500);
     }
 };
 

@@ -80,10 +80,10 @@ export const HistoryScreen = {
         const remarksEl = document.getElementById('detail-remarks');
         if (item.remarks) {
             remarksEl.innerText = item.remarks;
-            remarksContainer.classList.remove('hidden');
         } else {
-            remarksContainer.classList.add('hidden');
+            remarksEl.innerText = 'N/A';
         }
+        remarksContainer.classList.remove('hidden');
 
         modal.classList.remove('hidden');
         

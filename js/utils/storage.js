@@ -21,13 +21,14 @@ export const Storage = {
         const data = localStorage.getItem(HISTORY_KEY);
         return data ? JSON.parse(data) : [];
     },
-    addHistoryItem: (issue, timeRange, url) => {
+    addHistoryItem: (issue, timeRange, url, remarks) => {
         const history = Storage.getHistory();
         const newItem = {
             timestamp: new Date().toISOString(),
             issue,
             timeRange,
-            url
+            url,
+            remarks
         };
         history.push(newItem);
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history));

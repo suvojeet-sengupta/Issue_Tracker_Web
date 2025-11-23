@@ -121,9 +121,11 @@ export const TrackerScreen = {
             iframeModal.classList.remove('hidden');
 
             // Store data for history saving later
+            const remarks = document.getElementById('remarks').value;
             form.dataset.pendingIssue = issue;
             form.dataset.pendingTime = timeRange;
             form.dataset.prefilledUrl = finalUrl;
+            form.dataset.pendingRemarks = remarks;
         });
 
         // Iframe Load Handler (Detects Navigation)
@@ -146,9 +148,10 @@ export const TrackerScreen = {
                 const issue = form.dataset.pendingIssue;
                 const time = form.dataset.pendingTime;
                 const url = form.dataset.prefilledUrl;
+                const remarks = form.dataset.pendingRemarks;
 
                 if (issue && time) {
-                    Storage.addHistoryItem(issue, time, url);
+                    Storage.addHistoryItem(issue, time, url, remarks);
                     window.dispatchEvent(new CustomEvent('app:historyUpdated'));
                 }
 

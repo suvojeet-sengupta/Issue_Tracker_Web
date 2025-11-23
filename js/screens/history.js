@@ -55,6 +55,7 @@ export const HistoryScreen = {
                     <div>
                         <div class="font-bold text-slate-800 text-base">${item.issue}</div>
                         <div class="text-xs text-slate-500 font-mono mt-1">${item.timeRange}</div>
+                        ${item.remarks ? `<div class="text-sm text-slate-600 mt-2 p-2 bg-slate-100 rounded-md">${item.remarks}</div>` : ''}
                     </div>
                 </div>
                 <div class="text-right">
@@ -75,6 +76,15 @@ export const HistoryScreen = {
         document.getElementById('detail-link').href = item.url || '#';
         document.getElementById('detail-date').innerText = new Date(item.timestamp).toLocaleString();
         
+        const remarksContainer = document.getElementById('detail-remarks-container');
+        const remarksEl = document.getElementById('detail-remarks');
+        if (item.remarks) {
+            remarksEl.innerText = item.remarks;
+            remarksContainer.classList.remove('hidden');
+        } else {
+            remarksContainer.classList.add('hidden');
+        }
+
         modal.classList.remove('hidden');
         
         // Close logic

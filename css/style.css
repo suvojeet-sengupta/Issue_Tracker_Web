@@ -1,11 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-body { font-family: 'Inter', sans-serif; }
+body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(ellipse at top right, var(--tw-gradient-stops));
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+    --tw-gradient-from: #dbeafe;
+    --tw-gradient-to: #f0f4f8;
+}
 
 .glass-panel {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
 }
 
 .slide-in { animation: slideUp 0.4s ease-out forwards; }

@@ -62,7 +62,7 @@ export const DashboardScreen = {
             const recent = [...history].reverse().slice(0, 5);
             recent.forEach(item => {
                 const el = document.createElement('div');
-                el.className = 'bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-shadow';
+                el.className = 'glass-panel p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-white/20 transition-all';
                 
                 const dateObj = new Date(item.timestamp);
                 const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

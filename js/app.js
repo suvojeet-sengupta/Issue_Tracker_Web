@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ['start-h', 'start-m', 'start-ampm', 'end-h', 'end-m', 'end-ampm'].forEach(id => {
         document.getElementById(id).addEventListener('change', updatePreview);
     });
+    
+    // Initial Update
+    updatePreview();
 });
 
 // --- ROUTING ---

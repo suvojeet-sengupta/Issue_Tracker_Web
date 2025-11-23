@@ -102,7 +102,7 @@ export const TrackerScreen = {
             
             // 2. Reset Modal UI
             document.getElementById('modal-header-title').innerText = "Complete Submission";
-            document.getElementById('modal-header-desc').innerText = "Please review and submit the form below.";
+            document.getElementById('modal-header-desc').innerText = "Please review the Google Form & Click submit.";
             
             const spinnerContainer = document.getElementById('modal-spinner-container');
             spinnerContainer.className = "w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center transition-colors duration-300";

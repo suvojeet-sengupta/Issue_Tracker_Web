@@ -40,7 +40,7 @@
 
         <!-- Navigation -->
         <nav class="flex-1 px-4 space-y-2 mt-4">
-            <button onclick="router('dashboard')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group active-nav">
+            <button onclick="router('dashboard')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group active-nav bg-brand-50 text-brand-600">
                 <i data-lucide="layout-grid" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                 Dashboard
             </button>
@@ -100,66 +100,6 @@
         <!-- SCROLLABLE AREA -->
         <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 no-scrollbar scroll-smooth relative" id="main-scroll">
             
-            <!-- VIEW: SETUP (Absolute Overlay) -->
-            <div id="view-setup" class="hidden fixed inset-0 z-50 bg-slate-50/50 backdrop-blur-xl flex items-center justify-center p-4">
-                <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 border border-white/50 animate-slide-up relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                    <button onclick="closeSetup()" id="setup-close-btn" class="hidden absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                    
-                    <div class="text-center mb-8 relative z-10">
-                        <div class="w-16 h-16 bg-brand-50 rounded-2xl mx-auto flex items-center justify-center mb-4 text-brand-600 animate-float">
-                            <i data-lucide="sparkles" class="w-8 h-8"></i>
-                        </div>
-                        <h2 id="setup-title" class="text-2xl font-bold text-slate-900">Welcome!</h2>
-                        <p id="setup-desc" class="text-slate-500 mt-1">Let's set up your profile.</p>
-                    </div>
-
-                    <form id="setup-form" class="space-y-4 relative z-10">
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Full Name</label>
-                            <input type="text" id="setup-name" required class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition font-medium" placeholder="e.g. Suvojeet">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">CRM ID</label>
-                            <input type="number" id="setup-crm" required class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition font-mono" placeholder="e.g. 121098">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Org</label>
-                                <select id="setup-org" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
-                                    <option value="DISH">DISH</option>
-                                    <option value="D2H">D2H</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">TL Name</label>
-                                <select id="setup-tl" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
-                                    <option value="Manish Kumar">Manish Kumar</option>
-                                    <option value="Aniket">Aniket</option>
-                                    <option value="Imran Khan">Imran Khan</option>
-                                    <option value="Ravi">Ravi</option>
-                                    <option value="Gajendra">Gajendra</option>
-                                    <option value="Suyash Upadhyay">Suyash Upadhyay</option>
-                                    <option value="Randhir Kumar">Randhir Kumar</option>
-                                    <option value="Shubham Kumar">Shubham Kumar</option>
-                                    <option value="Karan">Karan</option>
-                                    <option value="Rohit">Rohit</option>
-                                    <option value="Shilpa">Shilpa</option>
-                                    <option value="Vipin">Vipin</option>
-                                    <option value="Sonu">Sonu</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button id="setup-btn" type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-slate-800 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 mt-4">
-                            Get Started <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
             <!-- VIEW: DASHBOARD -->
             <div id="view-dashboard" class="space-y-6 md:space-y-8 max-w-6xl mx-auto pb-24 md:pb-0 animate-slide-up">
                 
@@ -251,183 +191,11 @@
                 </div>
             </div>
 
-            <!-- VIEW: TRACKER (New Issue) -->
-            <div id="view-tracker" class="hidden max-w-6xl mx-auto pb-24 md:pb-0 animate-slide-up">
-                
-                <div class="flex items-center gap-2 mb-6 cursor-pointer text-slate-500 hover:text-brand-600 transition w-fit" onclick="router('dashboard')">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span class="text-sm font-bold">Back to Dashboard</span>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                    
-                    <!-- Form Area -->
-                    <div class="lg:col-span-2 glass-card rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-200/50">
-                        <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                            <span class="bg-brand-100 text-brand-600 p-2 rounded-lg"><i data-lucide="pen-tool" class="w-5 h-5"></i></span>
-                            New Issue Entry
-                        </h2>
-
-                        <form id="tracker-form" class="space-y-6">
-                            
-                            <!-- Hidden User Fields -->
-                            <input type="hidden" name="entry.1005447471" id="form-crm">
-                            <input type="hidden" name="entry.44222229" id="form-name">
-                            <input type="hidden" name="entry.115861300" id="form-tl">
-                            <input type="hidden" name="entry.313975949" id="form-org">
-
-                            <!-- Time Selection -->
-                            <div class="bg-slate-50/80 p-5 rounded-2xl border border-slate-100">
-                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 block">Time Duration</label>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <!-- Start -->
-                                    <div class="flex flex-col">
-                                        <span class="text-xs font-bold text-brand-600 mb-1">Start Time</span>
-                                        <div class="flex gap-1">
-                                            <select id="start-h" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none flex-1"></select>
-                                            <span class="py-2 text-slate-300">:</span>
-                                            <select id="start-m" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none flex-1"></select>
-                                            <select id="start-ampm" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none w-16 text-brand-600">
-                                                <option>AM</option><option>PM</option>
-                                            </select>
-                                        </div>
-                                        <!-- Hidden Google Form Date Inputs -->
-                                        <input type="hidden" name="entry.1521239602_hour" id="g-start-h">
-                                        <input type="hidden" name="entry.1521239602_minute" id="g-start-m">
-                                        <input type="hidden" name="entry.702818104_year" id="g-start-y">
-                                        <input type="hidden" name="entry.702818104_month" id="g-start-mo">
-                                        <input type="hidden" name="entry.702818104_day" id="g-start-d">
-                                    </div>
-                                    <!-- End -->
-                                    <div class="flex flex-col">
-                                        <span class="text-xs font-bold text-purple-600 mb-1">End Time</span>
-                                        <div class="flex gap-1">
-                                            <select id="end-h" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-purple-500 outline-none flex-1"></select>
-                                            <span class="py-2 text-slate-300">:</span>
-                                            <select id="end-m" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-purple-500 outline-none flex-1"></select>
-                                            <select id="end-ampm" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-purple-500 outline-none w-16 text-purple-600">
-                                                <option>AM</option><option>PM</option>
-                                            </select>
-                                        </div>
-                                        <!-- Hidden Google Form Date Inputs -->
-                                        <input type="hidden" name="entry.701130970_hour" id="g-end-h">
-                                        <input type="hidden" name="entry.701130970_minute" id="g-end-m">
-                                        <input type="hidden" name="entry.514450388_year" id="g-end-y">
-                                        <input type="hidden" name="entry.514450388_month" id="g-end-mo">
-                                        <input type="hidden" name="entry.514450388_day" id="g-end-d">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Issue Details -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Issue Type</label>
-                                    <div class="relative">
-                                        <select name="entry.1211413190" id="issue-select" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none transition font-medium appearance-none shadow-sm text-sm">
-                                            <option value="System Hang / Voice Issue">System Hang / Voice Issue</option>
-                                            <option value="Electricity Issue/Power Failure">Electricity Issue/Power Failure</option>
-                                            <option value="Head Phone Issue">Head Phone Issue</option>
-                                            <option value="Wifi Stopped Working">Wifi Stopped Working</option>
-                                            <option value="Voice Issue / Cx Voice Not Audible">Voice Issue / Cx Voice Not Audible</option>
-                                            <option value="Mobile Phone Hang">Mobile Phone Hang</option>
-                                            <option value="Auto Call Drop">Auto Call Drop</option>
-                                            <option value="Aspect / WDE issue">Aspect / WDE issue</option>
-                                            <option value="Mobile Network Connectivity">Mobile Network Connectivity</option>
-                                        </select>
-                                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Root Cause</label>
-                                    <div class="flex flex-col gap-2">
-                                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
-                                            <input type="radio" name="entry.1231067802" value="System issue (Network , Asset & Aspect /WDE issue)" class="accent-brand-600 w-4 h-4" checked>
-                                            <span class="ml-2 text-sm font-semibold text-slate-700">System / Network</span>
-                                        </label>
-                                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50">
-                                            <input type="radio" name="entry.1231067802" value="Voice Issue" class="accent-purple-600 w-4 h-4">
-                                            <span class="ml-2 text-sm font-semibold text-slate-700">Voice Issue</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Remarks -->
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Remarks (Optional)</label>
-                                <textarea id="remarks-input" rows="2" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition text-sm shadow-sm" placeholder="Any extra details..."></textarea>
-                            </div>
-
-                            <button type="submit" id="submit-btn" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-xl shadow-slate-900/20 hover:bg-slate-800 hover:shadow-2xl transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
-                                <span>Submit Issue</span>
-                                <i data-lucide="send" class="w-4 h-4"></i>
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Live Preview Card (Sticky) -->
-                    <div class="hidden lg:block lg:col-span-1 sticky top-4">
-                        <div class="glass-card rounded-3xl p-6 border-t-4 border-t-brand-500 relative overflow-hidden">
-                            <div class="absolute top-0 right-0 bg-brand-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Preview</div>
-                            
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 font-bold border border-brand-100" id="preview-avatar">U</div>
-                                <div>
-                                    <div class="font-bold text-slate-800 leading-tight" id="preview-name">User Name</div>
-                                    <div class="text-xs text-slate-400 font-mono" id="preview-crm">#000000</div>
-                                </div>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase">Issue</label>
-                                    <div class="font-bold text-slate-800 text-sm leading-tight mt-0.5" id="preview-issue">System Hang</div>
-                                </div>
-                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
-                                        <i data-lucide="clock" class="w-3 h-3"></i> Duration
-                                    </label>
-                                    <div class="font-mono text-brand-600 font-bold mt-1 text-sm" id="preview-time">--:-- to --:--</div>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-xs text-center text-slate-400 mt-4">Make sure details are correct before submitting.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VIEW: HISTORY (Full) -->
-            <div id="view-history" class="hidden max-w-6xl mx-auto pb-24 md:pb-0 animate-slide-up">
-                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-slate-900">History Log</h2>
-                    <button onclick="clearHistory()" class="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 px-3 py-2 rounded-lg transition">Clear All</button>
-                 </div>
-                 <div class="glass-card rounded-3xl overflow-hidden min-h-[400px]">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-50/50 border-b border-slate-100 text-slate-500 uppercase text-xs font-bold">
-                                <tr>
-                                    <th class="px-6 py-4">Date</th>
-                                    <th class="px-6 py-4">Time Range</th>
-                                    <th class="px-6 py-4">Issue</th>
-                                    <th class="px-6 py-4">Cause</th>
-                                    <th class="px-6 py-4">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="full-history-list" class="divide-y divide-slate-100 bg-white/40">
-                                <!-- JS Injection -->
-                            </tbody>
-                        </table>
-                    </div>
-                 </div>
-            </div>
-
         </div>
 
         <!-- Mobile Bottom Nav -->
         <nav class="md:hidden glass-nav h-16 flex items-center justify-around px-2 z-30 shrink-0">
-            <button onclick="router('dashboard')" class="flex flex-col items-center justify-center w-full h-full text-slate-400 active-nav group">
+            <button onclick="router('dashboard')" class="flex flex-col items-center justify-center w-full h-full text-slate-400 active-nav group text-brand-600">
                 <i data-lucide="layout-grid" class="w-6 h-6 mb-1 group-hover:scale-110 transition-transform"></i>
                 <span class="text-[10px] font-bold">Dash</span>
             </button>
@@ -442,42 +210,6 @@
             </button>
         </nav>
     </main>
-
-    <!-- SUCCESS OVERLAY -->
-    <div id="success-overlay" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/90 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
-        <div class="text-center transform scale-90 transition-transform duration-300" id="success-content">
-            <div class="w-24 h-24 bg-green-500 rounded-full mx-auto flex items-center justify-center mb-6 shadow-2xl shadow-green-500/50 animate-bounce">
-                <i data-lucide="check" class="w-12 h-12 text-white"></i>
-            </div>
-            <h2 class="text-3xl font-bold text-white mb-2">Issue Submitted!</h2>
-            <p class="text-slate-400 text-lg">Redirecting to dashboard...</p>
-        </div>
-    </div>
-
-    <!-- IFRAME MODAL FOR INTERACTIVE SUBMISSION -->
-    <div id="iframe-modal" class="fixed inset-0 z-[70] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-4xl h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-up">
-            <!-- Header -->
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white z-10">
-                <div class="flex items-center gap-4">
-                    <div id="modal-spinner-container" class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center transition-colors duration-300">
-                        <i data-lucide="pen-tool" class="w-5 h-5 text-indigo-600"></i>
-                    </div>
-                    <div>
-                        <h3 id="modal-header-title" class="font-bold text-slate-800">Complete Submission</h3>
-                        <p id="modal-header-desc" class="text-xs text-slate-500">Please review the form & click submit.</p>
-                    </div>
-                </div>
-                <button id="modal-cancel-btn" onclick="closeIframeModal()" class="text-xs font-bold text-red-400 hover:text-red-600 uppercase tracking-wide">
-                    Cancel
-                </button>
-            </div>
-            <!-- Iframe Container -->
-            <div class="flex-1 bg-slate-50 relative">
-                <iframe id="interactive_iframe" class="w-full h-full border-0" src="about:blank"></iframe>
-            </div>
-        </div>
-    </div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script src="js/app.js"></script>

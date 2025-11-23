@@ -2,151 +2,107 @@
 let currentUser = JSON.parse(localStorage.getItem('tracker_user')) || null;
 let historyLog = JSON.parse(localStorage.getItem('tracker_history')) || [];
 
-// --- DOM ELEMENTS ---
-const views = {
-    setup: document.getElementById('view-setup'),
-    dashboard: document.getElementById('view-dashboard'),
-    tracker: document.getElementById('view-tracker'),
-    history: document.getElementById('view-history')
-};
-const navItems = document.querySelectorAll('.nav-item');
-
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
-    initTimeSelects();
     
-    if (!currentUser) {
-        showView('setup');
-    } else {
-        updateUI();
-        showView('dashboard');
+    // Auth Check
+    const isSetupPage = window.location.pathname.endsWith('setup.html');
+    if (!currentUser && !isSetupPage) {
+        window.location.href = 'setup.html';
+        return;
+    } else if (currentUser && isSetupPage) {
+        // Optional: If already logged in and on setup, maybe redirect to dashboard?
+        // But we might be in "Edit Profile" mode. 
+        // Let's check if we are explicitly editing or just visiting.
+        // For simplicity, we'll let it stay, but fill data.
+        populateSetupForm();
     }
 
-    // Real-time Preview Listeners
-    document.getElementById('issue-select').addEventListener('change', updatePreview);
-    ['start-h', 'start-m', 'start-ampm', 'end-h', 'end-m', 'end-ampm'].forEach(id => {
-        document.getElementById(id).addEventListener('change', updatePreview);
-    });
+    initTimeSelects(); // Safe to call, checks existence internally
+    updateUI();        // Safe to call, checks existence internally
     
-    // Initial Update
-    updatePreview();
+    // Real-time Preview Listeners (Tracker Page)
+    const issueSelect = document.getElementById('issue-select');
+    if(issueSelect) {
+        issueSelect.addEventListener('change', updatePreview);
+        ['start-h', 'start-m', 'start-ampm', 'end-h', 'end-m', 'end-ampm'].forEach(id => {
+            document.getElementById(id)?.addEventListener('change', updatePreview);
+        });
+        updatePreview();
+    }
 });
 
-// --- ROUTING ---
-function showView(viewName) {
-    // Hide all
-    Object.values(views).forEach(el => el.classList.add('hidden'));
-    // Show selected
-    views[viewName].classList.remove('hidden');
-    
-    // Scroll to top
-    document.getElementById('main-scroll').scrollTop = 0;
-
-    // Nav Active State
-    document.querySelectorAll('button[onclick^="router"]').forEach(btn => {
-        btn.classList.remove('text-brand-600', 'bg-brand-50');
-        if(btn.getAttribute('onclick').includes(viewName)) {
-            btn.classList.add('text-brand-600');
-            if(window.innerWidth >= 768) btn.classList.add('bg-brand-50');
-        }
-    });
-}
-
-function router(path) {
-    showView(path);
-    if(path === 'dashboard' || path === 'history') renderHistory();
+// --- NAVIGATION ---
+function router(page) {
+    // Convert 'dashboard' to 'index' if you prefer index.html as dashboard
+    if (page === 'dashboard') page = 'index';
+    window.location.href = `${page}.html`;
 }
 
 // --- SETUP LOGIC ---
-document.getElementById('setup-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('setup-name').value;
-    const crm = document.getElementById('setup-crm').value;
-    const org = document.getElementById('setup-org').value;
-    const tl = document.getElementById('setup-tl').value;
+const setupForm = document.getElementById('setup-form');
+if (setupForm) {
+    setupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('setup-name').value;
+        const crm = document.getElementById('setup-crm').value;
+        const org = document.getElementById('setup-org').value;
+        const tl = document.getElementById('setup-tl').value;
 
-    currentUser = { name, crm, org, tl };
-    localStorage.setItem('tracker_user', JSON.stringify(currentUser));
-    
-    updateUI();
-    
-    // Close modal if open (Update mode) or show Dashboard (Setup mode)
-    const modal = document.getElementById('view-setup');
-    if (!modal.classList.contains('hidden')) {
-        // If it was a modal (Edit Mode), close it
-        if (document.getElementById('setup-close-btn').classList.contains('hidden') === false) {
-            closeSetup();
-        } else {
-            // Initial Setup Mode
-            showView('dashboard');
-        }
-    }
-});
-
-// --- PROFILE MENU LOGIC ---
-function toggleProfileMenu() {
-    const menu = document.getElementById('profile-menu');
-    const chevron = document.getElementById('profile-chevron');
-    
-    menu.classList.toggle('hidden');
-    
-    if (menu.classList.contains('hidden')) {
-        chevron.style.transform = 'rotate(0deg)';
-    } else {
-        chevron.style.transform = 'rotate(180deg)';
-    }
+        currentUser = { name, crm, org, tl };
+        localStorage.setItem('tracker_user', JSON.stringify(currentUser));
+        
+        // If we were in a modal (on other pages), reload/update. 
+        // But now Setup is a page.
+        window.location.href = 'index.html';
+    });
 }
 
-// Close menu when clicking outside
-document.addEventListener('click', (e) => {
-    const menu = document.getElementById('profile-menu');
-    const trigger = document.getElementById('profile-trigger');
-    if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !trigger.contains(e.target)) {
-        toggleProfileMenu();
-    }
-});
-
-function openProfileEditor() {
-    // Close menu if open
-    document.getElementById('profile-menu').classList.add('hidden');
-    
-    // Pre-fill data
-    if (currentUser) {
-        document.getElementById('setup-name').value = currentUser.name;
+function populateSetupForm() {
+    if (!currentUser) return;
+    const nameInput = document.getElementById('setup-name');
+    if (nameInput) {
+        nameInput.value = currentUser.name;
         document.getElementById('setup-crm').value = currentUser.crm;
         document.getElementById('setup-org').value = currentUser.org;
         document.getElementById('setup-tl').value = currentUser.tl;
+        
+        // Change button text to "Update"
+        document.getElementById('setup-btn').innerHTML = `Update Profile <i data-lucide="save" class="w-4 h-4"></i>`;
+        document.getElementById('setup-title').innerText = "Edit Profile";
+        document.getElementById('setup-desc').innerText = "Update your advisor details.";
     }
-
-    // Update UI for "Edit Mode"
-    document.getElementById('setup-title').innerText = "Edit Profile";
-    document.getElementById('setup-desc').innerText = "Update your advisor details.";
-    document.getElementById('setup-btn').innerHTML = `Update Profile <i data-lucide="save" class="w-4 h-4"></i>`;
-    document.getElementById('setup-close-btn').classList.remove('hidden');
-    
-    // Show Modal
-    document.getElementById('view-setup').classList.remove('hidden');
-    lucide.createIcons();
-}
-
-function closeSetup() {
-    document.getElementById('view-setup').classList.add('hidden');
-    // Reset to default "Setup Mode" for next time (optional, but good practice)
-    setTimeout(() => {
-        document.getElementById('setup-title').innerText = "Welcome!";
-        document.getElementById('setup-desc').innerText = "Let's set up your profile.";
-        document.getElementById('setup-btn').innerHTML = `Get Started <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-        document.getElementById('setup-close-btn').classList.add('hidden');
-        document.getElementById('setup-form').reset();
-    }, 300);
 }
 
 function logout() {
     if(confirm('Are you sure you want to log out? Data will remain on device.')) {
         localStorage.removeItem('tracker_user');
-        location.reload();
+        window.location.href = 'setup.html';
     }
+}
+
+// --- PROFILE MENU (Shared) ---
+function toggleProfileMenu() {
+    const menu = document.getElementById('profile-menu');
+    const chevron = document.getElementById('profile-chevron');
+    if(!menu) return;
+    
+    menu.classList.toggle('hidden');
+    chevron.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('profile-menu');
+    const trigger = document.getElementById('profile-trigger');
+    if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target) && !trigger.contains(e.target)) {
+        toggleProfileMenu();
+    }
+});
+
+function openProfileEditor() {
+    // In MPA, we redirect to setup.html
+    window.location.href = 'setup.html';
 }
 
 // --- UI UPDATES ---
@@ -154,112 +110,129 @@ function updateUI() {
     if(!currentUser) return;
     
     // Sidebar & Profile
-    document.getElementById('sidebar-name').innerText = currentUser.name;
-    document.getElementById('sidebar-crm').innerText = currentUser.crm;
-    document.getElementById('sidebar-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
+    setText('sidebar-name', currentUser.name);
+    setText('sidebar-crm', currentUser.crm);
+    setText('sidebar-avatar', currentUser.name.charAt(0).toUpperCase());
     
-    // Preview Card
-    document.getElementById('preview-name').innerText = currentUser.name;
-    document.getElementById('preview-crm').innerText = currentUser.crm;
-    document.getElementById('preview-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
+    // Preview Card (Tracker)
+    setText('preview-name', currentUser.name);
+    setText('preview-crm', currentUser.crm);
+    setText('preview-avatar', currentUser.name.charAt(0).toUpperCase());
 
     // Dashboard Advisor Card
-    document.getElementById('dash-name').innerText = currentUser.name;
-    document.getElementById('dash-crm').innerText = currentUser.crm;
-    document.getElementById('dash-tl').innerText = currentUser.tl;
-    document.getElementById('dash-org').innerText = currentUser.org;
-    document.getElementById('dash-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
+    setText('dash-name', currentUser.name);
+    setText('dash-crm', currentUser.crm);
+    setText('dash-tl', currentUser.tl);
+    setText('dash-org', currentUser.org);
+    setText('dash-avatar', currentUser.name.charAt(0).toUpperCase());
 
     // Greeting
-    const hr = new Date().getHours();
-    const greet = hr < 12 ? 'Good Morning' : hr < 18 ? 'Good Afternoon' : 'Good Evening';
-    document.getElementById('dash-greeting').innerText = `${greet}, ${currentUser.name.split(' ')[0]} 👋`;
+    const greetingEl = document.getElementById('dash-greeting');
+    if (greetingEl) {
+        const hr = new Date().getHours();
+        const greet = hr < 12 ? 'Good Morning' : hr < 18 ? 'Good Afternoon' : 'Good Evening';
+        greetingEl.innerText = `${greet}, ${currentUser.name.split(' ')[0]} 👋`;
+    }
 
-    // Form Pre-fill
-    document.getElementById('form-crm').value = currentUser.crm;
-    document.getElementById('form-name').value = currentUser.name;
-    document.getElementById('form-tl').value = currentUser.tl;
-    document.getElementById('form-org').value = currentUser.org;
+    // Form Pre-fill (Tracker)
+    setValue('form-crm', currentUser.crm);
+    setValue('form-name', currentUser.name);
+    setValue('form-tl', currentUser.tl);
+    setValue('form-org', currentUser.org);
 
     renderHistory();
 }
 
-function renderHistory() {
-    // Stats
-    document.getElementById('stat-total').innerText = historyLog.length;
-    
-    const todayStr = new Date().toLocaleDateString();
-    const todayCount = historyLog.filter(x => new Date(x.timestamp).toLocaleDateString() === todayStr).length;
-    document.getElementById('stat-today').innerText = todayCount;
+function setText(id, val) {
+    const el = document.getElementById(id);
+    if(el) el.innerText = val;
+}
 
-    if(historyLog.length > 0) {
-        const last = historyLog[0];
-        document.getElementById('stat-last-issue').innerText = last.issue;
-        document.getElementById('stat-last-time').innerText = new Date(last.timestamp).toLocaleString();
+function setValue(id, val) {
+    const el = document.getElementById(id);
+    if(el) el.value = val;
+}
+
+function renderHistory() {
+    // Stats (Dashboard)
+    const totalEl = document.getElementById('stat-total');
+    if (totalEl) {
+        totalEl.innerText = historyLog.length;
+        const todayStr = new Date().toLocaleDateString();
+        const todayCount = historyLog.filter(x => new Date(x.timestamp).toLocaleDateString() === todayStr).length;
+        setText('stat-today', todayCount);
+
+        if(historyLog.length > 0) {
+            const last = historyLog[0];
+            setText('stat-last-issue', last.issue);
+            setText('stat-last-time', new Date(last.timestamp).toLocaleString());
+        }
     }
 
     // Dashboard List (Top 5)
     const listContainer = document.getElementById('dash-history-list');
-    listContainer.innerHTML = '';
-    
-    if (historyLog.length === 0) {
-        listContainer.innerHTML = `<div class="p-8 text-center text-slate-400"><i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-50"></i><p class="text-sm">No issues tracked yet.</p></div>`;
-    } else {
-        historyLog.slice(0, 5).forEach(item => {
-            const el = document.createElement('div');
-            el.className = 'p-4 flex items-center justify-between hover:bg-slate-50 transition-colors';
-            el.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
-                        <i data-lucide="file-text" class="w-5 h-5"></i>
+    if (listContainer) {
+        listContainer.innerHTML = '';
+        if (historyLog.length === 0) {
+            listContainer.innerHTML = `<div class="p-8 text-center text-slate-400"><i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-50"></i><p class="text-sm">No issues tracked yet.</p></div>`;
+        } else {
+            historyLog.slice(0, 5).forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'p-4 flex items-center justify-between hover:bg-slate-50 transition-colors';
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">${item.issue}</p>
+                            <p class="text-xs text-slate-400">${item.cause}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-800">${item.issue}</p>
-                        <p class="text-xs text-slate-400">${item.cause}</p>
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-slate-600">${item.timeRange}</p>
+                        <p class="text-[10px] text-slate-400">${new Date(item.timestamp).toLocaleDateString()}</p>
                     </div>
-                </div>
-                <div class="text-right">
-                    <p class="text-xs font-bold text-slate-600">${item.timeRange}</p>
-                    <p class="text-[10px] text-slate-400">${new Date(item.timestamp).toLocaleDateString()}</p>
-                </div>
-            `;
-            listContainer.appendChild(el);
-        });
+                `;
+                listContainer.appendChild(el);
+            });
+        }
     }
 
-    // Full History Table
+    // Full History Table (History Page)
     const tableBody = document.getElementById('full-history-list');
-    tableBody.innerHTML = '';
-    historyLog.forEach(item => {
-        const row = document.createElement('tr');
-        row.className = "hover:bg-slate-50 transition-colors";
-        row.innerHTML = `
-            <td class="px-6 py-4 font-mono text-xs text-slate-500">${new Date(item.timestamp).toLocaleDateString()}</td>
-            <td class="px-6 py-4 font-bold text-slate-700 text-xs">${item.timeRange}</td>
-            <td class="px-6 py-4 text-sm font-medium text-slate-800">${item.issue}</td>
-            <td class="px-6 py-4 text-xs text-slate-500">${item.cause}</td>
-            <td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-[10px] font-bold uppercase">Sent</span></td>
-        `;
-        tableBody.appendChild(row);
-    });
+    if (tableBody) {
+        tableBody.innerHTML = '';
+        historyLog.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = "hover:bg-slate-50 transition-colors";
+            row.innerHTML = `
+                <td class="px-6 py-4 font-mono text-xs text-slate-500">${new Date(item.timestamp).toLocaleDateString()}</td>
+                <td class="px-6 py-4 font-bold text-slate-700 text-xs">${item.timeRange}</td>
+                <td class="px-6 py-4 text-sm font-medium text-slate-800">${item.issue}</td>
+                <td class="px-6 py-4 text-xs text-slate-500">${item.cause}</td>
+                <td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-[10px] font-bold uppercase">Sent</span></td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
     
     lucide.createIcons();
 }
 
 // --- FORM LOGIC ---
 function initTimeSelects() {
-    // Hours
     const hours = Array.from({length: 12}, (_, i) => (i + 1).toString().padStart(2, '0'));
     const mins = Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'));
     
     ['start-h', 'end-h'].forEach(id => {
         const el = document.getElementById(id);
-        hours.forEach(h => el.add(new Option(h, h)));
+        if(el) hours.forEach(h => el.add(new Option(h, h)));
     });
     
     ['start-m', 'end-m'].forEach(id => {
         const el = document.getElementById(id);
-        mins.forEach(m => el.add(new Option(m, m)));
+        if(el) mins.forEach(m => el.add(new Option(m, m)));
     });
 }
 
@@ -272,141 +245,123 @@ function updatePreview() {
     const em = document.getElementById('end-m').value || '00';
     const ea = document.getElementById('end-ampm').value;
 
-    document.getElementById('preview-issue').innerText = issue;
-    document.getElementById('preview-time').innerText = `${sh}:${sm} ${sa} - ${eh}:${em} ${ea}`;
+    setText('preview-issue', issue);
+    setText('preview-time', `${sh}:${sm} ${sa} - ${eh}:${em} ${ea}`);
 }
 
-// --- INTERACTIVE SUBMISSION LOGIC ---
+// --- INTERACTIVE SUBMISSION LOGIC (Tracker Page) ---
 let submissionStage = 'idle';
+const trackerForm = document.getElementById('tracker-form');
 
-document.getElementById('tracker-form').addEventListener('submit', function(e) {
-    e.preventDefault(); // Stop default submission
-    
-    const now = new Date();
-    const issue = document.getElementById('issue-select').value;
-    const cause = document.querySelector('input[name="entry.1231067802"]:checked').value;
-    const remarks = document.getElementById('remarks-input').value;
-    
-    // Time Values
-    const sh = document.getElementById('start-h').value;
-    const sm = document.getElementById('start-m').value;
-    const sa = document.getElementById('start-ampm').value;
-    const eh = document.getElementById('end-h').value;
-    const em = document.getElementById('end-m').value;
-    const ea = document.getElementById('end-ampm').value;
-    
-    if(!sh || !eh) {
-        alert('Please select valid times');
-        return;
-    }
-
-    // Convert 12h to 24h for Google Form (assuming form expects 24h, or just pass as is if text)
-    // Based on previous code, it passed raw values. We will pass raw values but ensure they are clean.
-    // The original code passed just the numbers.
-    
-    // Helper to get 24h (optional if form needs it, keeping simple for now as per previous logic)
-    const get24Hour = (h, m, ap) => {
-        h = parseInt(h);
-        if (ap === 'PM' && h < 12) h += 12;
-        if (ap === 'AM' && h === 12) h = 0;
-        return h;
-    };
-
-    const startH24 = get24Hour(sh, sm, sa);
-    const endH24 = get24Hour(eh, em, ea);
-
-    // Construct URL Params
-    const params = new URLSearchParams();
-    
-    // User Info
-    params.append('entry.1005447471', currentUser.crm);
-    params.append('entry.44222229', currentUser.name);
-    params.append('entry.115861300', currentUser.tl);
-    params.append('entry.313975949', currentUser.org);
-    
-    // Time & Date
-    params.append('entry.1521239602_hour', startH24);
-    params.append('entry.1521239602_minute', sm);
-    params.append('entry.702818104_year', now.getFullYear());
-    params.append('entry.702818104_month', now.getMonth() + 1);
-    params.append('entry.702818104_day', now.getDate());
-    
-    params.append('entry.701130970_hour', endH24);
-    params.append('entry.701130970_minute', em);
-    params.append('entry.514450388_year', now.getFullYear());
-    params.append('entry.514450388_month', now.getMonth() + 1);
-    params.append('entry.514450388_day', now.getDate());
-
-    // Issue
-    params.append('entry.1211413190', issue);
-    params.append('entry.1231067802', cause);
-
-    // Base URL (VIEWFORM, not formResponse)
-    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/viewform";
-    const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
-
-    // Open Modal
-    const modal = document.getElementById('iframe-modal');
-    const iframe = document.getElementById('interactive_iframe');
-    const title = document.getElementById('modal-header-title');
-    const desc = document.getElementById('modal-header-desc');
-    const spinner = document.getElementById('modal-spinner-container');
-    const cancelBtn = document.getElementById('modal-cancel-btn');
-
-    // Reset Modal UI
-    title.innerText = "Complete Submission";
-    desc.innerText = "Please review the Google Form & Click submit.";
-    spinner.className = "w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center transition-colors duration-300";
-    spinner.innerHTML = `<i data-lucide="pen-tool" class="w-5 h-5 text-indigo-600"></i>`;
-    cancelBtn.innerText = "Cancel";
-    cancelBtn.className = "text-xs font-bold text-red-400 hover:text-red-600 transition uppercase tracking-wide";
-    cancelBtn.onclick = closeIframeModal;
-
-    // Load Iframe
-    submissionStage = 'loading_form';
-    iframe.src = finalUrl;
-    modal.classList.remove('hidden');
-    lucide.createIcons();
-
-    // Store Pending Data for History
-    iframe.dataset.pendingIssue = issue + (remarks ? ` (${remarks})` : '');
-    iframe.dataset.pendingCause = cause;
-    iframe.dataset.pendingTime = document.getElementById('preview-time').innerText;
-});
-
-// Handle Iframe Load (Detection)
-const iframe = document.getElementById('interactive_iframe');
-iframe.onload = function() {
-    if (submissionStage === 'loading_form') {
-        // Form loaded for the first time
-        submissionStage = 'waiting_for_user';
-        console.log('Form Loaded, waiting for user...');
-    } else if (submissionStage === 'waiting_for_user') {
-        // Form reloaded -> Likely Submitted
-        console.log('User Submitted!');
-        submissionStage = 'submitted';
+if (trackerForm) {
+    trackerForm.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        // Update Modal UI to Success
-        document.getElementById('modal-header-title').innerText = "Submission Successful!";
-        document.getElementById('modal-header-desc').innerText = "Response recorded.";
+        const now = new Date();
+        const issue = document.getElementById('issue-select').value;
+        const cause = document.querySelector('input[name="entry.1231067802"]:checked').value;
+        const remarks = document.getElementById('remarks-input').value;
+        
+        // Time Values
+        const sh = document.getElementById('start-h').value;
+        const sm = document.getElementById('start-m').value;
+        const sa = document.getElementById('start-ampm').value;
+        const eh = document.getElementById('end-h').value;
+        const em = document.getElementById('end-m').value;
+        const ea = document.getElementById('end-ampm').value;
+        
+        if(!sh || !eh) {
+            alert('Please select valid times');
+            return;
+        }
+
+        const get24Hour = (h, m, ap) => {
+            h = parseInt(h);
+            if (ap === 'PM' && h < 12) h += 12;
+            if (ap === 'AM' && h === 12) h = 0;
+            return h;
+        };
+
+        const startH24 = get24Hour(sh, sm, sa);
+        const endH24 = get24Hour(eh, em, ea);
+
+        const params = new URLSearchParams();
+        params.append('entry.1005447471', currentUser.crm);
+        params.append('entry.44222229', currentUser.name);
+        params.append('entry.115861300', currentUser.tl);
+        params.append('entry.313975949', currentUser.org);
+        params.append('entry.1521239602_hour', startH24);
+        params.append('entry.1521239602_minute', sm);
+        params.append('entry.702818104_year', now.getFullYear());
+        params.append('entry.702818104_month', now.getMonth() + 1);
+        params.append('entry.702818104_day', now.getDate());
+        params.append('entry.701130970_hour', endH24);
+        params.append('entry.701130970_minute', em);
+        params.append('entry.514450388_year', now.getFullYear());
+        params.append('entry.514450388_month', now.getMonth() + 1);
+        params.append('entry.514450388_day', now.getDate());
+        params.append('entry.1211413190', issue);
+        params.append('entry.1231067802', cause);
+
+        const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/viewform";
+        const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
+
+        const modal = document.getElementById('iframe-modal');
+        const iframe = document.getElementById('interactive_iframe');
+        
+        // Reset Modal UI
+        setText('modal-header-title', "Complete Submission");
+        setText('modal-header-desc', "Please review the Google Form & Click submit.");
         
         const spinner = document.getElementById('modal-spinner-container');
-        spinner.className = "w-10 h-10 bg-green-100 rounded-full flex items-center justify-center transition-colors duration-300";
-        spinner.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-green-600"></i>`;
+        spinner.className = "w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center transition-colors duration-300";
+        spinner.innerHTML = `<i data-lucide="pen-tool" class="w-5 h-5 text-indigo-600"></i>`;
         
-        const actionBtn = document.getElementById('modal-cancel-btn');
-        actionBtn.innerText = "Continue";
-        actionBtn.className = "px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition shadow-lg shadow-green-600/20";
-        actionBtn.onclick = finalizeSubmission;
-        
+        const cancelBtn = document.getElementById('modal-cancel-btn');
+        cancelBtn.innerText = "Cancel";
+        cancelBtn.className = "text-xs font-bold text-red-400 hover:text-red-600 transition uppercase tracking-wide";
+        cancelBtn.onclick = closeIframeModal;
+
+        submissionStage = 'loading_form';
+        iframe.src = finalUrl;
+        modal.classList.remove('hidden');
         lucide.createIcons();
-    }
-};
+
+        updatePreview();
+        
+        iframe.dataset.pendingIssue = issue + (remarks ? ` (${remarks})` : '');
+        iframe.dataset.pendingCause = cause;
+        iframe.dataset.pendingTime = document.getElementById('preview-time').innerText;
+    });
+}
+
+const iframe = document.getElementById('interactive_iframe');
+if (iframe) {
+    iframe.onload = function() {
+        if (submissionStage === 'loading_form') {
+            submissionStage = 'waiting_for_user';
+        } else if (submissionStage === 'waiting_for_user') {
+            submissionStage = 'submitted';
+            
+            setText('modal-header-title', "Submission Successful!");
+            setText('modal-header-desc', "Response recorded.");
+            
+            const spinner = document.getElementById('modal-spinner-container');
+            spinner.className = "w-10 h-10 bg-green-100 rounded-full flex items-center justify-center transition-colors duration-300";
+            spinner.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-green-600"></i>`;
+            
+            const actionBtn = document.getElementById('modal-cancel-btn');
+            actionBtn.innerText = "Continue";
+            actionBtn.className = "px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition shadow-lg shadow-green-600/20";
+            actionBtn.onclick = finalizeSubmission;
+            
+            lucide.createIcons();
+        }
+    };
+}
 
 function finalizeSubmission() {
     const iframe = document.getElementById('interactive_iframe');
-    
-    // Add to History
     const entry = {
         issue: iframe.dataset.pendingIssue,
         cause: iframe.dataset.pendingCause,
@@ -417,10 +372,9 @@ function finalizeSubmission() {
     historyLog.unshift(entry);
     localStorage.setItem('tracker_history', JSON.stringify(historyLog));
     
-    // Close and Reset
     closeIframeModal();
     document.getElementById('tracker-form').reset();
-    router('dashboard');
+    window.location.href = 'index.html';
 }
 
 window.closeIframeModal = function() {

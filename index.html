@@ -2,481 +2,283 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Issue Tracker - Suvojeet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tracker Pro | Suvojeet</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Config -->
+    <script src="js/tailwind-config.js"></script>
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
 </head>
-<body class="min-h-screen text-slate-800 p-4 font-sans selection:bg-indigo-100 selection:text-indigo-700">
+<body class="text-slate-800 antialiased h-screen overflow-hidden flex flex-col md:flex-row">
 
-    <!-- Custom Preview Modal (Visual Submission) -->
-    <div id="iframe-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" id="iframe-backdrop"></div>
-        <div class="bg-white w-full h-full md:w-11/12 md:max-w-5xl md:h-[85vh] md:rounded-3xl shadow-2xl z-50 overflow-hidden flex flex-col relative slide-in border border-white/20 ring-1 ring-slate-900/5">
-            
-            <!-- Header -->
-            <div class="bg-slate-50 p-4 border-b border-slate-100 flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-3">
-                    <div id="modal-spinner-container" class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center transition-colors duration-300">
-                         <i data-lucide="loader-2" class="animate-spin w-5 h-5 text-indigo-600"></i>
-                    </div>
-                    <div>
-                        <h3 id="modal-header-title" class="text-lg font-bold text-slate-800">Processing Submission...</h3>
-                        <p id="modal-header-desc" class="text-xs text-slate-500">Review details while we submit.</p>
-                    </div>
-                </div>
-                <button onclick="closeIframeModal()" class="p-2 hover:bg-slate-200 rounded-full transition text-slate-400 hover:text-slate-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+    <!-- HIDDEN IFRAME FOR SUBMISSION -->
+    <iframe name="hidden_iframe" id="hidden_iframe" class="hidden"></iframe>
+
+    <!-- ==================== SIDEBAR (DESKTOP) ==================== -->
+    <aside id="sidebar" class="hidden md:flex flex-col w-64 glass-nav h-full z-20 transition-all duration-300 transform">
+        <!-- Brand -->
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                <i data-lucide="zap" class="w-6 h-6"></i>
             </div>
-
-            <!-- Content Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 h-full overflow-hidden">
-                
-                <!-- Left: Custom Preview (Hidden on Mobile) -->
-                <div id="custom-preview" class="hidden md:flex p-6 bg-white overflow-y-auto border-r border-slate-100 flex-col justify-center">
-                    
-                    <!-- Ticket Card -->
-                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-                            Draft
-                        </div>
-                        <div class="p-6 space-y-6">
-                            <div class="flex items-center gap-3 border-b border-slate-50 pb-4">
-                                <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold text-xl">
-                                    <i data-lucide="file-text"></i>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Advisor</div>
-                                    <div class="font-bold text-slate-800" id="preview-name">...</div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CRM ID</label>
-                                    <div class="font-mono font-bold text-slate-700 text-lg" id="preview-crm">...</div>
-                                </div>
-                                <div>
-                                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Reason</label>
-                                     <div class="font-medium text-slate-600 text-sm" id="preview-reason">...</div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Issue</label>
-                                <div class="font-bold text-slate-800" id="preview-issue">...</div>
-                            </div>
-
-                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                                    <i data-lucide="clock" class="w-3 h-3"></i> Time Range
-                                </label>
-                                <div class="font-mono font-bold text-indigo-600 mt-1" id="preview-time">...</div>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 p-4 text-center border-t border-slate-100">
-                             <button id="modal-cancel-btn" onclick="closeIframeModal()" class="text-xs font-bold text-red-400 hover:text-red-600 transition uppercase tracking-wide">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Right: Live Iframe -->
-                <div class="bg-slate-100 h-full relative">
-                    <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center text-slate-400 text-sm z-0">
-                        Loading Form...
-                    </div>
-                    <iframe name="hidden_iframe" id="hidden_iframe" class="w-full h-full relative z-10 bg-white/50" sandbox="allow-scripts allow-forms allow-popups allow-same-origin"></iframe>
-                </div>
-
+            <div>
+                <h1 class="font-bold text-lg tracking-tight">Tracker Pro</h1>
+                <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Workspace</p>
             </div>
         </div>
-    </div>
 
-    <!-- MAIN CONTAINER -->
-    <div id="app-container" class="w-full max-w-7xl mx-auto relative min-h-[90vh] flex flex-col justify-center">
-        
-        <!-- SETUP SCREEN (Centered Card) -->
-        <div id="setup-screen" class="hidden slide-in w-full max-w-md mx-auto">
-            <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-white/50 ring-1 ring-slate-900/5">
-                <div class="text-center mb-6">
-                    <div class="bg-gradient-to-br from-indigo-600 to-purple-600 w-16 h-16 rounded-2xl rotate-3 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200 transition hover:rotate-6 duration-300">
-                        <i data-lucide="settings-2" class="text-white w-8 h-8 -rotate-3"></i>
-                    </div>
-                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Welcome</h1>
-                    <p class="text-slate-500 mt-1">Let's get your profile set up.</p>
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 space-y-2 mt-4">
+            <button onclick="router('dashboard')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group active-nav">
+                <i data-lucide="layout-grid" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                Dashboard
+            </button>
+            <button onclick="router('tracker')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group">
+                <i data-lucide="plus-circle" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                New Issue
+            </button>
+            <button onclick="router('history')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group">
+                <i data-lucide="history" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                History
+            </button>
+        </nav>
+
+        <!-- User Profile Mini -->
+        <div class="p-4 border-t border-slate-100">
+            <div class="glass-card p-3 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-white transition-colors" onclick="logout()">
+                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold border-2 border-white shadow-sm" id="sidebar-avatar">
+                    U
                 </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-slate-800 truncate" id="sidebar-name">User</p>
+                    <p class="text-xs text-slate-400 truncate" id="sidebar-crm">#000000</p>
+                </div>
+                <i data-lucide="log-out" class="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors"></i>
+            </div>
+        </div>
+    </aside>
 
-                <form id="setup-form" class="space-y-4">
-                    <!-- Profile Picture Upload -->
-                    <div class="flex flex-col items-center mb-4">
-                        <div class="relative group cursor-pointer">
-                            <input type="file" id="setup-avatar" accept="image/*" class="hidden">
-                            <div id="avatar-preview" class="w-20 h-20 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden group-hover:border-indigo-400 transition-colors">
-                                <i data-lucide="camera" class="w-8 h-8 text-slate-400 group-hover:text-indigo-500 transition-colors" id="avatar-icon"></i>
-                                <img id="avatar-img" src="" class="w-full h-full object-cover hidden">
-                            </div>
-                            <div class="absolute bottom-0 right-0 bg-indigo-600 text-white p-1.5 rounded-full shadow-md transform translate-x-1/4 translate-y-1/4">
-                                <i data-lucide="plus" class="w-3 h-3"></i>
-                            </div>
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="flex-1 h-full overflow-hidden relative flex flex-col">
+        
+        <!-- Mobile Header -->
+        <header class="md:hidden h-16 glass-nav flex items-center justify-between px-4 z-20 shrink-0">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center text-white">
+                    <i data-lucide="zap" class="w-5 h-5"></i>
+                </div>
+                <span class="font-bold text-slate-800">Tracker Pro</span>
+            </div>
+            <button onclick="logout()" class="p-2 text-slate-400 hover:text-red-500">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+            </button>
+        </header>
+
+        <!-- SCROLLABLE AREA -->
+        <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 no-scrollbar scroll-smooth relative" id="main-scroll">
+            
+            <!-- VIEW: SETUP (Absolute Overlay) -->
+            <div id="view-setup" class="hidden fixed inset-0 z-50 bg-slate-50/50 backdrop-blur-xl flex items-center justify-center p-4">
+                <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 border border-white/50 animate-slide-up relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                    
+                    <div class="text-center mb-8 relative z-10">
+                        <div class="w-16 h-16 bg-brand-50 rounded-2xl mx-auto flex items-center justify-center mb-4 text-brand-600 animate-float">
+                            <i data-lucide="sparkles" class="w-8 h-8"></i>
                         </div>
-                        <p class="text-xs text-slate-400 mt-2">Tap to add photo</p>
+                        <h2 class="text-2xl font-bold text-slate-900">Welcome!</h2>
+                        <p class="text-slate-500 mt-1">Let's set up your profile.</p>
                     </div>
 
-                    <!-- CRM ID -->
-                    <div class="group">
-                        <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">CRM ID</label>
-                        <input type="number" id="setup-crm" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition font-mono text-lg" placeholder="e.g. 1210793" required>
-                    </div>
-
-                    <!-- Advisor Name -->
-                    <div class="group">
-                        <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Advisor Name</label>
-                        <div class="relative">
-                            <input type="text" id="setup-name" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition" placeholder="Full Name" required>
-                            <div id="name-error-icon" class="absolute right-4 top-1/2 -translate-y-1/2 text-red-500 hidden animate-bounce">
-                                <i data-lucide="alert-circle" class="w-5 h-5"></i>
-                            </div>
+                    <form id="setup-form" class="space-y-4 relative z-10">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Full Name</label>
+                            <input type="text" id="setup-name" required class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition font-medium" placeholder="e.g. Suvojeet">
                         </div>
-                        <p id="name-error" class="text-red-500 text-xs mt-2 ml-1 hidden flex items-center gap-1 font-medium animate-pulse">
-                            Alphabets only please!
-                        </p>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- Organization -->
-                        <div class="group">
-                            <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Organization</label>
-                            <div class="relative">
-                                <select id="setup-org" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition appearance-none">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">CRM ID</label>
+                            <input type="number" id="setup-crm" required class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition font-mono" placeholder="e.g. 121098">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Org</label>
+                                <select id="setup-org" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
                                     <option value="DISH">DISH</option>
                                     <option value="D2H">D2H</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                             </div>
-                        </div>
-
-                        <!-- Team Leader -->
-                        <div class="group">
-                            <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Team Leader</label>
-                            <div class="relative">
-                                <select id="setup-tl" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition appearance-none">
-                                    <option value="Manish Kumar" selected>Manish Kumar</option>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">TL Name</label>
+                                <select id="setup-tl" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition">
+                                    <option value="Manish Kumar">Manish Kumar</option>
                                     <option value="Aniket">Aniket</option>
                                     <option value="Imran Khan">Imran Khan</option>
                                     <option value="Ravi">Ravi</option>
                                     <option value="Gajendra">Gajendra</option>
-                                    <option value="Suyash Upadhyay">Suyash Upadhyay</option>
-                                    <option value="Randhir Kumar">Randhir Kumar</option>
-                                    <option value="Shubham Kumar">Shubham Kumar</option>
-                                    <option value="Karan">Karan</option>
-                                    <option value="Rohit">Rohit</option>
-                                    <option value="Shilpa">Shilpa</option>
-                                    <option value="Vipin">Vipin</option>
-                                    <option value="Sonu">Sonu</option>
                                     <option value="Other">Other</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Other TL Input (Hidden) -->
-                    <div id="other-tl-container" class="hidden slide-in">
-                        <input type="text" id="setup-tl-other" class="w-full px-4 py-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition placeholder-indigo-300" placeholder="Enter TL Name">
-                    </div>
-
-                    <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition shadow-lg shadow-slate-900/20 transform active:scale-[0.98] flex items-center justify-center gap-2 group">
-                        <span>Get Started</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- DASHBOARD SCREEN (Grid Layout) -->
-        <div id="dashboard-screen" class="hidden slide-in w-full">
-            
-            <!-- Dashboard Header -->
-            <div class="flex items-center justify-between mb-8">
-                <div>
-                    <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-                    <p class="text-slate-500">Welcome back to your tracker.</p>
-                </div>
-                <div class="flex gap-2">
-                    <button id="settings-btn" class="p-2.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-500 transition" title="Settings">
-                        <i data-lucide="settings" class="w-5 h-5"></i>
-                    </button>
+                        <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-slate-800 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 mt-4">
+                            Get Started <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="space-y-6 md:space-y-8 max-w-6xl mx-auto pb-24 md:pb-0 animate-slide-up">
                 
-                <!-- LEFT SIDEBAR (Profile & Stats) -->
-                <div class="lg:col-span-1 space-y-6">
+                <!-- Greeting Header -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-900 tracking-tight" id="dash-greeting">Hello, User 👋</h1>
+                        <p class="text-slate-500 font-medium">Here's your activity overview.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="router('tracker')" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-slate-900/10 flex items-center gap-2 transition-all active:scale-95">
+                            <i data-lucide="plus" class="w-5 h-5"></i> New Issue
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bento Grid Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                    <!-- Total -->
+                    <div class="glass-card p-5 rounded-2xl md:col-span-1 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <i data-lucide="layers" class="w-12 h-12"></i>
+                        </div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Issues</p>
+                        <h3 class="text-3xl font-extrabold text-slate-800 mt-1" id="stat-total">0</h3>
+                        <div class="mt-2 text-xs font-medium text-green-600 bg-green-50 inline-block px-2 py-0.5 rounded-full">All time</div>
+                    </div>
+
+                    <!-- Today -->
+                    <div class="glass-card p-5 rounded-2xl md:col-span-1 relative overflow-hidden group border-brand-100">
+                        <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                            <i data-lucide="calendar" class="w-12 h-12 text-brand-600"></i>
+                        </div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Today's Count</p>
+                        <h3 class="text-3xl font-extrabold text-brand-600 mt-1" id="stat-today">0</h3>
+                        <div class="mt-2 text-xs font-medium text-brand-600 bg-brand-50 inline-block px-2 py-0.5 rounded-full">Active</div>
+                    </div>
+
+                    <!-- Last Activity (Wide) -->
+                    <div class="glass-card p-5 rounded-2xl col-span-2 bg-gradient-to-br from-slate-800 to-slate-900 text-white relative overflow-hidden">
+                        <div class="relative z-10">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Last Submission</p>
+                            <h3 class="text-lg font-bold mt-1 truncate" id="stat-last-issue">No activity yet</h3>
+                            <p class="text-sm text-slate-400 mt-1 font-mono" id="stat-last-time">--:--</p>
+                        </div>
+                        <div class="absolute right-4 bottom-4 p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                            <i data-lucide="activity" class="w-5 h-5 text-white"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent History List -->
+                <div class="glass-card rounded-3xl overflow-hidden border border-slate-200/60 shadow-sm">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white/50">
+                        <h3 class="font-bold text-lg text-slate-800">Recent History</h3>
+                        <button onclick="router('history')" class="text-xs font-bold text-brand-600 hover:underline">View All</button>
+                    </div>
+                    <div id="dash-history-list" class="divide-y divide-slate-100 bg-white/40">
+                        <!-- Items injected by JS -->
+                        <div class="p-8 text-center text-slate-400">
+                            <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                            <p class="text-sm">No issues tracked yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: TRACKER (New Issue) -->
+            <div id="view-tracker" class="hidden max-w-6xl mx-auto pb-24 md:pb-0 animate-slide-up">
+                
+                <div class="flex items-center gap-2 mb-6 cursor-pointer text-slate-500 hover:text-brand-600 transition w-fit" onclick="router('dashboard')">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span class="text-sm font-bold">Back to Dashboard</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                     
-                    <!-- Profile Card -->
-                    <div class="glass-panel p-6 rounded-2xl">
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-20 h-20 bg-white p-1 rounded-full shadow-md mb-3">
-                                <div class="w-full h-full bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-2xl">
-                                    <span id="avatar-initials">U</span>
-                                </div>
-                            </div>
-                            <h3 class="text-xl font-bold text-slate-800" id="disp-name-card">Loading...</h3>
-                            <p class="text-sm text-slate-500 mb-4 font-mono" id="disp-crm-card">000000</p>
-                            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
-                                <span id="disp-org-card">ORG</span> • <span id="disp-tl-card" class="text-indigo-500">TL</span>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Form Area -->
+                    <div class="lg:col-span-2 glass-card rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-200/50">
+                        <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                            <span class="bg-brand-100 text-brand-600 p-2 rounded-lg"><i data-lucide="pen-tool" class="w-5 h-5"></i></span>
+                            New Issue Entry
+                        </h2>
 
-                    <!-- Action Button -->
-                    <button id="new-issue-btn" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition transform active:scale-[0.98] group flex items-center justify-center gap-3">
-                        <div class="bg-white/20 p-1 rounded-full group-hover:rotate-90 transition-transform duration-500">
-                            <i data-lucide="plus" class="w-5 h-5"></i>
-                        </div>
-                        <span class="text-lg">Fill New Issue</span>
-                    </button>
-
-                    <!-- Stats Grid -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- Total Issues -->
-                        <div class="glass-panel p-5 rounded-2xl">
-                             <div class="bg-indigo-50 w-10 h-10 rounded-xl flex items-center justify-center mb-3">
-                                <i data-lucide="layers" class="w-5 h-5 text-indigo-600"></i>
-                             </div>
-                             <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Total Issues</p>
-                             <h3 class="text-3xl font-bold text-slate-800 mt-1 tracking-tight" id="stat-total">0</h3>
-                        </div>
-
-                        <!-- Today's Issues -->
-                        <div class="glass-panel p-5 rounded-2xl">
-                             <div class="bg-purple-50 w-10 h-10 rounded-xl flex items-center justify-center mb-3">
-                                <i data-lucide="calendar-check" class="w-5 h-5 text-purple-600"></i>
-                             </div>
-                             <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Today</p>
-                             <h3 class="text-3xl font-bold text-slate-800 mt-1 tracking-tight" id="stat-today">0</h3>
-                        </div>
-                        
-                        <!-- Last Entry (Full Width) -->
-                        <div class="col-span-2 bg-slate-800 p-5 rounded-2xl text-white">
-                            <p class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Last Activity</p>
-                            <h3 class="text-xl font-bold text-white tracking-tight" id="stat-last">No activity yet</h3>
-                        </div>
-                    </div>
-                    
-                    <button id="view-all-history-btn" class="w-full py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-100 transition flex items-center justify-center gap-2 group">
-                        <i data-lucide="list" class="w-4 h-4 group-hover:text-indigo-500 transition-colors"></i> View Full History
-                    </button>
-                </div>
-
-                <!-- RIGHT CONTENT (History) -->
-                <div class="lg:col-span-2">
-                    <div class="glass-panel p-8 rounded-[2rem]">
-                        <div class="flex items-center justify-between mb-8">
-                            <div>
-                                <h3 class="text-xl font-bold text-slate-800">Recent Activity</h3>
-                                <p class="text-sm text-slate-500">Your latest tracked issues.</p>
-                            </div>
-                            <div class="bg-white px-3 py-1 rounded-full border border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider shadow-sm">
-                                Live Updates
-                            </div>
-                        </div>
-                        
-                        <div id="history-list" class="space-y-4">
-                            <!-- History items will be injected here -->
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- FULL HISTORY SCREEN -->
-        <div id="history-screen" class="hidden slide-in w-full max-w-5xl mx-auto pb-10">
-             <!-- Header -->
-            <div class="flex items-center justify-between mb-8">
-                <button id="history-back-btn" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:bg-slate-50 text-slate-600 transition font-medium text-sm group">
-                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Back
-                </button>
-                <h2 class="text-2xl font-bold text-slate-800">Full History</h2>
-                <div class="w-10"></div> <!-- Spacer -->
-            </div>
-
-            <!-- Search & Controls -->
-            <div class="flex flex-col md:flex-row gap-4 mb-6">
-                <div class="relative flex-1">
-                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                    <input type="text" id="history-search" placeholder="Search issues..." class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition">
-                </div>
-                <button id="clear-history-btn" class="px-6 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition flex items-center gap-2">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All
-                </button>
-            </div>
-
-            <!-- List -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                <div id="full-history-list" class="divide-y divide-slate-100">
-                    <!-- Items injected here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- HISTORY DETAILS MODAL -->
-        <div id="history-details-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeHistoryModal()"></div>
-            <div class="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-md relative z-10 m-4 slide-in">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-xl font-bold text-slate-800">Issue Details</h3>
-                    <button onclick="closeHistoryModal()" class="p-1 hover:bg-slate-100 rounded-full text-slate-400">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase">Date & Time</label>
-                        <p id="detail-date" class="font-medium text-slate-800">Loading...</p>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase">Issue Type</label>
-                        <p id="detail-issue" class="font-medium text-slate-800">Loading...</p>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase">Time Range</label>
-                         <p id="detail-range" class="font-mono text-sm bg-slate-100 p-2 rounded-lg mt-1 text-slate-700">Loading...</p>
-                    </div>
-                    <div id="detail-remarks-container" class="hidden">
-                        <label class="text-xs font-bold text-slate-400 uppercase">Remarks</label>
-                        <p id="detail-remarks" class="font-medium text-slate-800 bg-slate-100 p-2 rounded-lg mt-1"></p>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase">Form Link</label>
-                        <a id="detail-link" href="#" target="_blank" class="flex items-center gap-2 text-indigo-600 hover:underline mt-1 text-sm break-all p-2 bg-indigo-50 rounded-lg">
-                            <i data-lucide="external-link" class="w-4 h-4 flex-shrink-0"></i>
-                            <span class="truncate">View Google Form</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Branding Footer -->
-            <div class="mt-12 mb-6 text-center">
-                <p class="text-xs font-medium text-slate-400">
-                    Developed by <a href="https://github.com/suvojeet-sengupta" target="_blank" class="text-indigo-500 hover:text-indigo-600 transition">Suvojeet Sengupta</a>
-                </p>
-            </div>
-        </div>
-
-        <!-- TRACKER SCREEN (Centered Large Card) -->
-        <div id="tracker-screen" class="hidden slide-in w-full max-w-3xl mx-auto pb-10">
-            
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-6">
-                <button id="back-btn" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:bg-slate-50 text-slate-600 transition font-medium text-sm group">
-                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Back
-                </button>
-                <button class="p-2 bg-white rounded-full shadow hover:bg-slate-100 text-indigo-600 transition" onclick="alert('Tracker Logic v2.1\nAuto-History Enabled!')">
-                    <i data-lucide="info" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <!-- Read Only Info Bar (Compact) -->
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-6 flex flex-wrap gap-4 items-center justify-between text-sm">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500" id="bar-avatar">U</div>
-                    <div>
-                        <div class="font-bold text-slate-800" id="disp-name">Loading...</div>
-                        <div class="font-mono text-xs text-slate-400" id="disp-crm">000000</div>
-                    </div>
-                </div>
-                <div class="flex gap-4">
-                    <div class="hidden md:block h-8 w-px bg-slate-200"></div>
-                    <div>
-                        <div class="text-xs text-slate-400 font-bold uppercase">Team Leader</div>
-                        <div class="font-bold text-indigo-600" id="disp-tl">Loading...</div>
-                    </div>
-                </div>
-                <!-- Hidden Fields container kept for logic -->
-                <div class="hidden">
-                   <span id="disp-org"></span> <!-- Just for script ref if needed, though script uses hidden inputs -->
-                </div>
-            </div>
-
-            <!-- Real Form targeting Hidden Iframe -->
-            <form id="google-form" 
-                  action="https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/formResponse" 
-                  method="POST" 
-                  target="hidden_iframe"
-                  class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
-                
-                <div class="p-8 space-y-10">
-                    <!-- Section: Time -->
-                    <div class="relative">
-                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-full"></div>
-                        <div class="pl-6">
-                            <h3 class="text-lg font-bold text-slate-800 mb-1">Time Selection</h3>
-                            <p class="text-sm text-slate-400 mb-6">Specify the duration of the issue.</p>
+                        <form id="tracker-form" class="space-y-6" action="https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/formResponse" method="POST" target="hidden_iframe">
                             
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Start Time -->
-                                <div class="group">
-                                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider group-focus-within:text-indigo-600 transition-colors">Start Time</label>
-                                    <div class="flex gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all">
-                                        <select id="start-hour" class="bg-transparent rounded-lg px-2 py-2 w-full text-center font-bold text-slate-700 outline-none cursor-pointer hover:bg-white transition"></select>
-                                        <span class="text-slate-300 font-bold py-2">:</span>
-                                        <select id="start-min" class="bg-transparent rounded-lg px-2 py-2 w-full text-center font-bold text-slate-700 outline-none cursor-pointer hover:bg-white transition"></select>
-                                        <select id="start-ampm" class="bg-white text-indigo-600 rounded-lg px-2 py-2 w-full text-center font-bold outline-none shadow-sm border border-slate-100">
-                                            <option value="AM">AM</option>
-                                            <option value="PM">PM</option>
-                                        </select>
-                                    </div>
-                                </div>
+                            <!-- Hidden User Fields -->
+                            <input type="hidden" name="entry.1005447471" id="form-crm">
+                            <input type="hidden" name="entry.44222229" id="form-name">
+                            <input type="hidden" name="entry.115861300" id="form-tl">
+                            <input type="hidden" name="entry.313975949" id="form-org">
 
-                                <!-- End Time -->
-                                <div class="group">
-                                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider group-focus-within:text-purple-600 transition-colors">End Time</label>
-                                    <div class="flex gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 focus-within:border-purple-500 focus-within:ring-4 focus-within:ring-purple-500/10 transition-all">
-                                        <select id="end-hour" class="bg-transparent rounded-lg px-2 py-2 w-full text-center font-bold text-slate-700 outline-none cursor-pointer hover:bg-white transition"></select>
-                                        <span class="text-slate-300 font-bold py-2">:</span>
-                                        <select id="end-min" class="bg-transparent rounded-lg px-2 py-2 w-full text-center font-bold text-slate-700 outline-none cursor-pointer hover:bg-white transition"></select>
-                                        <select id="end-ampm" class="bg-white text-purple-600 rounded-lg px-2 py-2 w-full text-center font-bold outline-none shadow-sm border border-slate-100">
-                                            <option value="AM">AM</option>
-                                            <option value="PM">PM</option>
-                                        </select>
+                            <!-- Time Selection -->
+                            <div class="bg-slate-50/80 p-5 rounded-2xl border border-slate-100">
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 block">Time Duration</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Start -->
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-brand-600 mb-1">Start Time</span>
+                                        <div class="flex gap-1">
+                                            <select id="start-h" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none flex-1"></select>
+                                            <span class="py-2 text-slate-300">:</span>
+                                            <select id="start-m" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none flex-1"></select>
+                                            <select id="start-ampm" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none w-16 text-brand-600">
+                                                <option>AM</option><option>PM</option>
+                                            </select>
+                                        </div>
+                                        <!-- Hidden Google Form Date Inputs -->
+                                        <input type="hidden" name="entry.1521239602_hour" id="g-start-h">
+                                        <input type="hidden" name="entry.1521239602_minute" id="g-start-m">
+                                        <input type="hidden" name="entry.702818104_year" id="g-start-y">
+                                        <input type="hidden" name="entry.702818104_month" id="g-start-mo">
+                                        <input type="hidden" name="entry.702818104_day" id="g-start-d">
+                                    </div>
+                                    <!-- End -->
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-purple-600 mb-1">End Time</span>
+                                        <div class="flex gap-1">
+                                            <select id="end-h" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-purple-500 outline-none flex-1"></select>
+                                            <span class="py-2 text-slate-300">:</span>
+                                            <select id="end-m" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-purple-500 outline-none flex-1"></select>
+                                            <select id="end-ampm" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-purple-500 outline-none w-16 text-purple-600">
+                                                <option>AM</option><option>PM</option>
+                                            </select>
+                                        </div>
+                                        <!-- Hidden Google Form Date Inputs -->
+                                        <input type="hidden" name="entry.701130970_hour" id="g-end-h">
+                                        <input type="hidden" name="entry.701130970_minute" id="g-end-m">
+                                        <input type="hidden" name="entry.514450388_year" id="g-end-y">
+                                        <input type="hidden" name="entry.514450388_month" id="g-end-mo">
+                                        <input type="hidden" name="entry.514450388_day" id="g-end-d">
                                     </div>
                                 </div>
                             </div>
-                            <p id="time-error" class="text-red-500 text-sm font-bold mt-4 hidden flex items-center gap-2 bg-red-50 p-3 rounded-xl border border-red-100 animate-pulse">
-                                <i data-lucide="alert-triangle" class="w-4 h-4"></i> End time must be after Start time!
-                            </p>
-                        </div>
-                    </div>
 
-                    <hr class="border-slate-100">
-
-                    <!-- Section: Details -->
-                    <div class="relative">
-                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 rounded-full"></div>
-                        <div class="pl-6">
-                            <h3 class="text-lg font-bold text-slate-800 mb-1">Issue Details</h3>
-                            <p class="text-sm text-slate-400 mb-6">Categorize the problem accurately.</p>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <!-- Issue Dropdown -->
-                                <div class="group">
-                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 group-focus-within:text-indigo-600 transition-colors">Explain Issue</label>
+                            <!-- Issue Details -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Issue Type</label>
                                     <div class="relative">
-                                        <select name="entry.1211413190" id="explain-issue" class="w-full px-4 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white focus:outline-none transition appearance-none text-sm font-semibold text-slate-700 cursor-pointer">
-                                            <option value="System Hang / Voice Issue" selected>System Hang / Voice Issue</option>
+                                        <select name="entry.1211413190" id="issue-select" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none transition font-medium appearance-none shadow-sm text-sm">
+                                            <option value="System Hang / Voice Issue">System Hang / Voice Issue</option>
                                             <option value="Electricity Issue/Power Failure">Electricity Issue/Power Failure</option>
                                             <option value="Head Phone Issue">Head Phone Issue</option>
                                             <option value="Wifi Stopped Working">Wifi Stopped Working</option>
@@ -486,103 +288,126 @@
                                             <option value="Aspect / WDE issue">Aspect / WDE issue</option>
                                             <option value="Mobile Network Connectivity">Mobile Network Connectivity</option>
                                         </select>
-                                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
-                                        </div>
+                                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                                     </div>
                                 </div>
-
-                                <!-- Reason Radio -->
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Root Cause</label>
-                                    <div class="space-y-3">
-                                        <label class="flex items-center p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-indigo-200 transition-all has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 has-[:checked]:shadow-md">
-                                            <div class="relative flex items-center justify-center w-5 h-5">
-                                                <input type="radio" name="entry.1231067802" value="System issue (Network , Asset & Aspect /WDE issue)" class="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-full checked:border-indigo-500 checked:bg-indigo-500 transition-all" checked>
-                                                <div class="absolute w-2 h-2 bg-white rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
-                                            </div>
-                                            <span class="ml-3 text-sm text-slate-700 font-bold">System / Network / Asset</span>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Root Cause</label>
+                                    <div class="flex flex-col gap-2">
+                                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+                                            <input type="radio" name="entry.1231067802" value="System issue (Network , Asset & Aspect /WDE issue)" class="accent-brand-600 w-4 h-4" checked>
+                                            <span class="ml-2 text-sm font-semibold text-slate-700">System / Network</span>
                                         </label>
-                                        
-                                        <label class="flex items-center p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-purple-200 transition-all has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50 has-[:checked]:shadow-md">
-                                            <div class="relative flex items-center justify-center w-5 h-5">
-                                                <input type="radio" name="entry.1231067802" value="Voice Issue" class="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-full checked:border-purple-500 checked:bg-purple-500 transition-all">
-                                                <div class="absolute w-2 h-2 bg-white rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
-                                            </div>
-                                            <span class="ml-3 text-sm text-slate-700 font-bold">Voice Issue</span>
+                                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50">
+                                            <input type="radio" name="entry.1231067802" value="Voice Issue" class="accent-purple-600 w-4 h-4">
+                                            <span class="ml-2 text-sm font-semibold text-slate-700">Voice Issue</span>
                                         </label>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Remarks -->
-                            <div class="mt-8">
-                                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Remarks (Optional)</label>
-                                <textarea id="remarks" rows="3" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 focus:ring-4 focus:ring-slate-500/10 focus:border-slate-400 focus:bg-white focus:outline-none transition text-sm font-medium placeholder:text-slate-300" placeholder="Add any specific details here..."></textarea>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Remarks (Optional)</label>
+                                <textarea id="remarks-input" rows="2" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition text-sm shadow-sm" placeholder="Any extra details..."></textarea>
+                            </div>
+
+                            <button type="submit" id="submit-btn" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-xl shadow-slate-900/20 hover:bg-slate-800 hover:shadow-2xl transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+                                <span>Submit Issue</span>
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Live Preview Card (Sticky) -->
+                    <div class="hidden lg:block lg:col-span-1 sticky top-4">
+                        <div class="glass-card rounded-3xl p-6 border-t-4 border-t-brand-500 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-brand-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Preview</div>
+                            
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 font-bold border border-brand-100" id="preview-avatar">U</div>
+                                <div>
+                                    <div class="font-bold text-slate-800 leading-tight" id="preview-name">User Name</div>
+                                    <div class="text-xs text-slate-400 font-mono" id="preview-crm">#000000</div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase">Issue</label>
+                                    <div class="font-bold text-slate-800 text-sm leading-tight mt-0.5" id="preview-issue">System Hang</div>
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
+                                        <i data-lucide="clock" class="w-3 h-3"></i> Duration
+                                    </label>
+                                    <div class="font-mono text-brand-600 font-bold mt-1 text-sm" id="preview-time">--:-- to --:--</div>
+                                </div>
                             </div>
                         </div>
+                        <p class="text-xs text-center text-slate-400 mt-4">Make sure details are correct before submitting.</p>
                     </div>
                 </div>
-
-                <!-- Submit Section -->
-                <div class="bg-slate-50 p-6 border-t border-slate-100 flex justify-end">
-                    <button type="submit" id="submit-btn" class="w-full md:w-auto px-8 bg-slate-900 text-white font-bold py-4 rounded-xl shadow-xl shadow-slate-900/10 transform active:scale-95 transition flex items-center justify-center gap-3 hover:bg-slate-800">
-                        <span id="btn-text">Submit Issue</span>
-                        <i data-lucide="send" id="btn-icon" class="w-4 h-4"></i>
-                    </button>
-                </div>
-
-                <!-- Hidden Fields for Google Form Submission -->
-                <input type="hidden" name="entry.1005447471" id="hidden-crm">
-                <input type="hidden" name="entry.44222229" id="hidden-name">
-                <input type="hidden" name="entry.115861300" id="hidden-tl">
-                <input type="hidden" name="entry.313975949" id="hidden-org">
-                
-                <!-- Time/Date Hidden Parts -->
-                <input type="hidden" name="entry.1521239602_hour" id="hidden-start-h">
-                <input type="hidden" name="entry.1521239602_minute" id="hidden-start-m">
-                <input type="hidden" name="entry.702818104_year" id="hidden-start-y">
-                <input type="hidden" name="entry.702818104_month" id="hidden-start-mo">
-                <input type="hidden" name="entry.702818104_day" id="hidden-start-d">
-                <input type="hidden" name="entry.701130970_hour" id="hidden-end-h">
-                <input type="hidden" name="entry.701130970_minute" id="hidden-end-m">
-                <input type="hidden" name="entry.514450388_year" id="hidden-end-y">
-                <input type="hidden" name="entry.514450388_month" id="hidden-end-mo">
-                <input type="hidden" name="entry.514450388_day" id="hidden-end-d">
-
-            </form>
-        </div>
-    </div>
-
-    <!-- SUCCESS MODAL -->
-    <div id="success-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-        <div class="bg-white rounded-3xl p-8 shadow-2xl transform scale-95 opacity-0 transition-all duration-300 z-10 text-center w-96 relative" id="modal-content">
-            <div class="flex justify-center mb-6">
-                <div class="checkmark-wrapper">
-                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-                        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                    </svg>
-                </div>
             </div>
-            <h3 class="text-2xl font-bold text-slate-800 mb-2">Success!</h3>
-            <p class="text-slate-500 mb-6">Your issue has been tracked.</p>
-            
-            <div id="prefilled-link-container" class="text-left hidden mb-6">
-                 <div class="text-xs font-bold text-slate-400 uppercase mb-1">Receipt</div>
-                 <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <a id="prefilled-link" href="#" target="_blank" class="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center gap-2 break-all">
-                        <i data-lucide="external-link" class="w-4 h-4 flex-shrink-0"></i>
-                        View Google Form
-                    </a>
+
+            <!-- VIEW: HISTORY (Full) -->
+            <div id="view-history" class="hidden max-w-6xl mx-auto pb-24 md:pb-0 animate-slide-up">
+                 <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900">History Log</h2>
+                    <button onclick="clearHistory()" class="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 px-3 py-2 rounded-lg transition">Clear All</button>
+                 </div>
+                 <div class="glass-card rounded-3xl overflow-hidden min-h-[400px]">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50/50 border-b border-slate-100 text-slate-500 uppercase text-xs font-bold">
+                                <tr>
+                                    <th class="px-6 py-4">Date</th>
+                                    <th class="px-6 py-4">Time Range</th>
+                                    <th class="px-6 py-4">Issue</th>
+                                    <th class="px-6 py-4">Cause</th>
+                                    <th class="px-6 py-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-history-list" class="divide-y divide-slate-100 bg-white/40">
+                                <!-- JS Injection -->
+                            </tbody>
+                        </table>
+                    </div>
                  </div>
             </div>
 
-            <button onclick="closeModal()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-slate-800 transition">Back to Dashboard</button>
+        </div>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="md:hidden glass-nav h-16 flex items-center justify-around px-2 z-30 shrink-0">
+            <button onclick="router('dashboard')" class="flex flex-col items-center justify-center w-full h-full text-slate-400 active-nav group">
+                <i data-lucide="layout-grid" class="w-6 h-6 mb-1 group-hover:scale-110 transition-transform"></i>
+                <span class="text-[10px] font-bold">Dash</span>
+            </button>
+            <button onclick="router('tracker')" class="flex flex-col items-center justify-center w-full h-full text-slate-400 group">
+                <div class="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center text-white -mt-8 shadow-lg shadow-slate-900/30 border-4 border-slate-100 transition-transform active:scale-95">
+                    <i data-lucide="plus" class="w-6 h-6"></i>
+                </div>
+            </button>
+            <button onclick="router('history')" class="flex flex-col items-center justify-center w-full h-full text-slate-400 group">
+                <i data-lucide="history" class="w-6 h-6 mb-1 group-hover:scale-110 transition-transform"></i>
+                <span class="text-[10px] font-bold">History</span>
+            </button>
+        </nav>
+    </main>
+
+    <!-- SUCCESS OVERLAY -->
+    <div id="success-overlay" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/90 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="text-center transform scale-90 transition-transform duration-300" id="success-content">
+            <div class="w-24 h-24 bg-green-500 rounded-full mx-auto flex items-center justify-center mb-6 shadow-2xl shadow-green-500/50 animate-bounce">
+                <i data-lucide="check" class="w-12 h-12 text-white"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-white mb-2">Issue Submitted!</h2>
+            <p class="text-slate-400 text-lg">Redirecting to dashboard...</p>
         </div>
     </div>
 
-    <script type="module" src="js/app.js"></script>
+    <!-- JAVASCRIPT LOGIC -->
+    <script src="js/app.js"></script>
 </body>
 </html>

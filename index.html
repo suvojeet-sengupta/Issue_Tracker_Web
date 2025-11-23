@@ -105,21 +105,21 @@
         
         <!-- SETUP SCREEN (Centered Card) -->
         <div id="setup-screen" class="hidden slide-in w-full max-w-md mx-auto">
-            <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/50 ring-1 ring-slate-900/5">
-                <div class="text-center mb-8">
-                    <div class="bg-gradient-to-br from-indigo-600 to-purple-600 w-20 h-20 rounded-2xl rotate-3 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-200 transition hover:rotate-6 duration-300">
-                        <i data-lucide="settings-2" class="text-white w-10 h-10 -rotate-3"></i>
+            <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-white/50 ring-1 ring-slate-900/5">
+                <div class="text-center mb-6">
+                    <div class="bg-gradient-to-br from-indigo-600 to-purple-600 w-16 h-16 rounded-2xl rotate-3 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200 transition hover:rotate-6 duration-300">
+                        <i data-lucide="settings-2" class="text-white w-8 h-8 -rotate-3"></i>
                     </div>
-                    <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Welcome</h1>
-                    <p class="text-slate-500 mt-2">Let's get your profile set up.</p>
+                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Welcome</h1>
+                    <p class="text-slate-500 mt-1">Let's get your profile set up.</p>
                 </div>
 
-                <form id="setup-form" class="space-y-5">
+                <form id="setup-form" class="space-y-4">
                     <!-- Profile Picture Upload -->
-                    <div class="flex flex-col items-center mb-6">
+                    <div class="flex flex-col items-center mb-4">
                         <div class="relative group cursor-pointer">
                             <input type="file" id="setup-avatar" accept="image/*" class="hidden">
-                            <div id="avatar-preview" class="w-24 h-24 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden group-hover:border-indigo-400 transition-colors">
+                            <div id="avatar-preview" class="w-20 h-20 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden group-hover:border-indigo-400 transition-colors">
                                 <i data-lucide="camera" class="w-8 h-8 text-slate-400 group-hover:text-indigo-500 transition-colors" id="avatar-icon"></i>
                                 <img id="avatar-img" src="" class="w-full h-full object-cover hidden">
                             </div>
@@ -132,15 +132,15 @@
 
                     <!-- CRM ID -->
                     <div class="group">
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">CRM ID</label>
-                        <input type="number" id="setup-crm" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition font-mono text-lg" placeholder="e.g. 1210793" required>
+                        <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">CRM ID</label>
+                        <input type="number" id="setup-crm" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition font-mono text-lg" placeholder="e.g. 1210793" required>
                     </div>
 
                     <!-- Advisor Name -->
                     <div class="group">
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Advisor Name</label>
+                        <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Advisor Name</label>
                         <div class="relative">
-                            <input type="text" id="setup-name" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition" placeholder="Full Name" required>
+                            <input type="text" id="setup-name" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition" placeholder="Full Name" required>
                             <div id="name-error-icon" class="absolute right-4 top-1/2 -translate-y-1/2 text-red-500 hidden animate-bounce">
                                 <i data-lucide="alert-circle" class="w-5 h-5"></i>
                             </div>
@@ -153,9 +153,9 @@
                     <div class="grid grid-cols-2 gap-4">
                         <!-- Organization -->
                         <div class="group">
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Organization</label>
+                            <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Organization</label>
                             <div class="relative">
-                                <select id="setup-org" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition appearance-none">
+                                <select id="setup-org" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition appearance-none">
                                     <option value="DISH">DISH</option>
                                     <option value="D2H">D2H</option>
                                 </select>
@@ -165,9 +165,9 @@
 
                         <!-- Team Leader -->
                         <div class="group">
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Team Leader</label>
+                            <label class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-indigo-600 transition-colors">Team Leader</label>
                             <div class="relative">
-                                <select id="setup-tl" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition appearance-none">
+                                <select id="setup-tl" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white focus:outline-none transition appearance-none">
                                     <option value="Manish Kumar" selected>Manish Kumar</option>
                                     <option value="Aniket">Aniket</option>
                                     <option value="Imran Khan">Imran Khan</option>
@@ -190,10 +190,10 @@
 
                     <!-- Other TL Input (Hidden) -->
                     <div id="other-tl-container" class="hidden slide-in">
-                        <input type="text" id="setup-tl-other" class="w-full px-4 py-3.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition placeholder-indigo-300" placeholder="Enter TL Name">
+                        <input type="text" id="setup-tl-other" class="w-full px-4 py-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition placeholder-indigo-300" placeholder="Enter TL Name">
                     </div>
 
-                    <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition shadow-lg shadow-slate-900/20 transform active:scale-[0.98] flex items-center justify-center gap-2 group">
+                    <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition shadow-lg shadow-slate-900/20 transform active:scale-[0.98] flex items-center justify-center gap-2 group">
                         <span>Get Started</span>
                         <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                     </button>

@@ -94,6 +94,13 @@ function updateUI() {
     document.getElementById('preview-crm').innerText = currentUser.crm;
     document.getElementById('preview-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
 
+    // Dashboard Advisor Card
+    document.getElementById('dash-name').innerText = currentUser.name;
+    document.getElementById('dash-crm').innerText = currentUser.crm;
+    document.getElementById('dash-tl').innerText = currentUser.tl;
+    document.getElementById('dash-org').innerText = currentUser.org;
+    document.getElementById('dash-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
+
     // Greeting
     const hr = new Date().getHours();
     const greet = hr < 12 ? 'Good Morning' : hr < 18 ? 'Good Afternoon' : 'Good Evening';

@@ -70,8 +70,77 @@ document.getElementById('setup-form').addEventListener('submit', (e) => {
     localStorage.setItem('tracker_user', JSON.stringify(currentUser));
     
     updateUI();
-    showView('dashboard');
+    
+    // Close modal if open (Update mode) or show Dashboard (Setup mode)
+    const modal = document.getElementById('view-setup');
+    if (!modal.classList.contains('hidden')) {
+        // If it was a modal (Edit Mode), close it
+        if (document.getElementById('setup-close-btn').classList.contains('hidden') === false) {
+            closeSetup();
+        } else {
+            // Initial Setup Mode
+            showView('dashboard');
+        }
+    }
 });
+
+// --- PROFILE MENU LOGIC ---
+function toggleProfileMenu() {
+    const menu = document.getElementById('profile-menu');
+    const chevron = document.getElementById('profile-chevron');
+    
+    menu.classList.toggle('hidden');
+    
+    if (menu.classList.contains('hidden')) {
+        chevron.style.transform = 'rotate(0deg)';
+    } else {
+        chevron.style.transform = 'rotate(180deg)';
+    }
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('profile-menu');
+    const trigger = document.getElementById('profile-trigger');
+    if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !trigger.contains(e.target)) {
+        toggleProfileMenu();
+    }
+});
+
+function openProfileEditor() {
+    // Close menu if open
+    document.getElementById('profile-menu').classList.add('hidden');
+    
+    // Pre-fill data
+    if (currentUser) {
+        document.getElementById('setup-name').value = currentUser.name;
+        document.getElementById('setup-crm').value = currentUser.crm;
+        document.getElementById('setup-org').value = currentUser.org;
+        document.getElementById('setup-tl').value = currentUser.tl;
+    }
+
+    // Update UI for "Edit Mode"
+    document.getElementById('setup-title').innerText = "Edit Profile";
+    document.getElementById('setup-desc').innerText = "Update your advisor details.";
+    document.getElementById('setup-btn').innerHTML = `Update Profile <i data-lucide="save" class="w-4 h-4"></i>`;
+    document.getElementById('setup-close-btn').classList.remove('hidden');
+    
+    // Show Modal
+    document.getElementById('view-setup').classList.remove('hidden');
+    lucide.createIcons();
+}
+
+function closeSetup() {
+    document.getElementById('view-setup').classList.add('hidden');
+    // Reset to default "Setup Mode" for next time (optional, but good practice)
+    setTimeout(() => {
+        document.getElementById('setup-title').innerText = "Welcome!";
+        document.getElementById('setup-desc').innerText = "Let's set up your profile.";
+        document.getElementById('setup-btn').innerHTML = `Get Started <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        document.getElementById('setup-close-btn').classList.add('hidden');
+        document.getElementById('setup-form').reset();
+    }, 300);
+}
 
 function logout() {
     if(confirm('Are you sure you want to log out? Data will remain on device.')) {

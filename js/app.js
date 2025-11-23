@@ -197,9 +197,11 @@ function updatePreview() {
     document.getElementById('preview-time').innerText = `${sh}:${sm} ${sa} - ${eh}:${em} ${ea}`;
 }
 
+// --- INTERACTIVE SUBMISSION LOGIC ---
+let submissionStage = 'idle';
+
 document.getElementById('tracker-form').addEventListener('submit', function(e) {
-    // NOTE: We do NOT preventDefault because we want the form to submit to the iframe.
-    // But we must populate hidden fields first.
+    e.preventDefault(); // Stop default submission
     
     const now = new Date();
     const issue = document.getElementById('issue-select').value;
@@ -209,68 +211,146 @@ document.getElementById('tracker-form').addEventListener('submit', function(e) {
     // Time Values
     const sh = document.getElementById('start-h').value;
     const sm = document.getElementById('start-m').value;
+    const sa = document.getElementById('start-ampm').value;
     const eh = document.getElementById('end-h').value;
     const em = document.getElementById('end-m').value;
+    const ea = document.getElementById('end-ampm').value;
     
     if(!sh || !eh) {
-        e.preventDefault();
         alert('Please select valid times');
         return;
     }
 
-    // Populate Hidden Date/Time for Google
-    document.getElementById('g-start-h').value = sh; // Google form usually expects 0-23 or just number, depending on config. Assuming 12h for now based on UI
-    document.getElementById('g-start-m').value = sm;
-    document.getElementById('g-start-y').value = now.getFullYear();
-    document.getElementById('g-start-mo').value = now.getMonth() + 1;
-    document.getElementById('g-start-d').value = now.getDate();
+    // Convert 12h to 24h for Google Form (assuming form expects 24h, or just pass as is if text)
+    // Based on previous code, it passed raw values. We will pass raw values but ensure they are clean.
+    // The original code passed just the numbers.
+    
+    // Helper to get 24h (optional if form needs it, keeping simple for now as per previous logic)
+    const get24Hour = (h, m, ap) => {
+        h = parseInt(h);
+        if (ap === 'PM' && h < 12) h += 12;
+        if (ap === 'AM' && h === 12) h = 0;
+        return h;
+    };
 
-    document.getElementById('g-end-h').value = eh;
-    document.getElementById('g-end-m').value = em;
-    document.getElementById('g-end-y').value = now.getFullYear();
-    document.getElementById('g-end-mo').value = now.getMonth() + 1;
-    document.getElementById('g-end-d').value = now.getDate();
+    const startH24 = get24Hour(sh, sm, sa);
+    const endH24 = get24Hour(eh, em, ea);
 
-    // Append Remarks to Issue since we don't have ID
-    if(remarks) {
-        // Find issue select and temporarily change value? No, google form uses value.
-        // We just rely on standard submission, maybe append to existing field if possible?
-        // Actually, let's just let it be. Remarks are local for now.
+    // Construct URL Params
+    const params = new URLSearchParams();
+    
+    // User Info
+    params.append('entry.1005447471', currentUser.crm);
+    params.append('entry.44222229', currentUser.name);
+    params.append('entry.115861300', currentUser.tl);
+    params.append('entry.313975949', currentUser.org);
+    
+    // Time & Date
+    params.append('entry.1521239602_hour', startH24);
+    params.append('entry.1521239602_minute', sm);
+    params.append('entry.702818104_year', now.getFullYear());
+    params.append('entry.702818104_month', now.getMonth() + 1);
+    params.append('entry.702818104_day', now.getDate());
+    
+    params.append('entry.701130970_hour', endH24);
+    params.append('entry.701130970_minute', em);
+    params.append('entry.514450388_year', now.getFullYear());
+    params.append('entry.514450388_month', now.getMonth() + 1);
+    params.append('entry.514450388_day', now.getDate());
+
+    // Issue
+    params.append('entry.1211413190', issue);
+    params.append('entry.1231067802', cause);
+
+    // Base URL (VIEWFORM, not formResponse)
+    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/viewform";
+    const finalUrl = `${baseUrl}?${params.toString()}&usp=pp_url`;
+
+    // Open Modal
+    const modal = document.getElementById('iframe-modal');
+    const iframe = document.getElementById('interactive_iframe');
+    const title = document.getElementById('modal-header-title');
+    const desc = document.getElementById('modal-header-desc');
+    const spinner = document.getElementById('modal-spinner-container');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Reset Modal UI
+    title.innerText = "Complete Submission";
+    desc.innerText = "Please review the Google Form & Click submit.";
+    spinner.className = "w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center transition-colors duration-300";
+    spinner.innerHTML = `<i data-lucide="pen-tool" class="w-5 h-5 text-indigo-600"></i>`;
+    cancelBtn.innerText = "Cancel";
+    cancelBtn.className = "text-xs font-bold text-red-400 hover:text-red-600 transition uppercase tracking-wide";
+    cancelBtn.onclick = closeIframeModal;
+
+    // Load Iframe
+    submissionStage = 'loading_form';
+    iframe.src = finalUrl;
+    modal.classList.remove('hidden');
+    lucide.createIcons();
+
+    // Store Pending Data for History
+    iframe.dataset.pendingIssue = issue + (remarks ? ` (${remarks})` : '');
+    iframe.dataset.pendingCause = cause;
+    iframe.dataset.pendingTime = document.getElementById('preview-time').innerText;
+});
+
+// Handle Iframe Load (Detection)
+const iframe = document.getElementById('interactive_iframe');
+iframe.onload = function() {
+    if (submissionStage === 'loading_form') {
+        // Form loaded for the first time
+        submissionStage = 'waiting_for_user';
+        console.log('Form Loaded, waiting for user...');
+    } else if (submissionStage === 'waiting_for_user') {
+        // Form reloaded -> Likely Submitted
+        console.log('User Submitted!');
+        submissionStage = 'submitted';
+        
+        // Update Modal UI to Success
+        document.getElementById('modal-header-title').innerText = "Submission Successful!";
+        document.getElementById('modal-header-desc').innerText = "Response recorded.";
+        
+        const spinner = document.getElementById('modal-spinner-container');
+        spinner.className = "w-10 h-10 bg-green-100 rounded-full flex items-center justify-center transition-colors duration-300";
+        spinner.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-green-600"></i>`;
+        
+        const actionBtn = document.getElementById('modal-cancel-btn');
+        actionBtn.innerText = "Continue";
+        actionBtn.className = "px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition shadow-lg shadow-green-600/20";
+        actionBtn.onclick = finalizeSubmission;
+        
+        lucide.createIcons();
     }
+};
 
-    // Save to Local History
+function finalizeSubmission() {
+    const iframe = document.getElementById('interactive_iframe');
+    
+    // Add to History
     const entry = {
-        issue: issue + (remarks ? ` (${remarks})` : ''),
-        cause: cause,
-        timeRange: document.getElementById('preview-time').innerText,
-        timestamp: now.toISOString()
+        issue: iframe.dataset.pendingIssue,
+        cause: iframe.dataset.pendingCause,
+        timeRange: iframe.dataset.pendingTime,
+        timestamp: new Date().toISOString()
     };
     
     historyLog.unshift(entry);
     localStorage.setItem('tracker_history', JSON.stringify(historyLog));
-
-    // UI Feedback
-    const btn = document.getElementById('submit-btn');
-    btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin"></i> Sending...`;
     
-    // Show success after short delay (assuming network speed)
-    setTimeout(() => {
-        const overlay = document.getElementById('success-overlay');
-        overlay.classList.remove('hidden');
-        setTimeout(() => overlay.classList.remove('opacity-0'), 10);
-        document.getElementById('success-content').classList.remove('scale-90');
-        document.getElementById('success-content').classList.add('scale-100');
-        
-        setTimeout(() => {
-            // Reset
-            overlay.classList.add('opacity-0');
-            setTimeout(() => overlay.classList.add('hidden'), 300);
-            btn.innerHTML = `<span>Submit Issue</span><i data-lucide="send" class="w-4 h-4"></i>`;
-            document.getElementById('tracker-form').reset();
-            router('dashboard');
-        }, 2000);
-    }, 1000);
-});
+    // Close and Reset
+    closeIframeModal();
+    document.getElementById('tracker-form').reset();
+    router('dashboard');
+}
+
+window.closeIframeModal = function() {
+    const modal = document.getElementById('iframe-modal');
+    const iframe = document.getElementById('interactive_iframe');
+    modal.classList.add('hidden');
+    iframe.src = 'about:blank';
+    submissionStage = 'idle';
+};
 
 function clearHistory() {
     if(confirm('Clear all history?')) {

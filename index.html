@@ -221,7 +221,7 @@
                             New Issue Entry
                         </h2>
 
-                        <form id="tracker-form" class="space-y-6" action="https://docs.google.com/forms/d/e/1FAIpQLSdeWylhfFaHmM3osSGRbxh9S_XvnAEPCIhTemuh-I7-LNds_w/formResponse" method="POST" target="hidden_iframe">
+                        <form id="tracker-form" class="space-y-6">
                             
                             <!-- Hidden User Fields -->
                             <input type="hidden" name="entry.1005447471" id="form-crm">
@@ -404,6 +404,31 @@
             </div>
             <h2 class="text-3xl font-bold text-white mb-2">Issue Submitted!</h2>
             <p class="text-slate-400 text-lg">Redirecting to dashboard...</p>
+        </div>
+    </div>
+
+    <!-- IFRAME MODAL FOR INTERACTIVE SUBMISSION -->
+    <div id="iframe-modal" class="fixed inset-0 z-[70] bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-up">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white z-10">
+                <div class="flex items-center gap-4">
+                    <div id="modal-spinner-container" class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center transition-colors duration-300">
+                        <i data-lucide="pen-tool" class="w-5 h-5 text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <h3 id="modal-header-title" class="font-bold text-slate-800">Complete Submission</h3>
+                        <p id="modal-header-desc" class="text-xs text-slate-500">Please review the form & click submit.</p>
+                    </div>
+                </div>
+                <button id="modal-cancel-btn" onclick="closeIframeModal()" class="text-xs font-bold text-red-400 hover:text-red-600 uppercase tracking-wide">
+                    Cancel
+                </button>
+            </div>
+            <!-- Iframe Container -->
+            <div class="flex-1 bg-slate-50 relative">
+                <iframe id="interactive_iframe" class="w-full h-full border-0" src="about:blank"></iframe>
+            </div>
         </div>
     </div>
 

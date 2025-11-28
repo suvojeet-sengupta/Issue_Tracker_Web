@@ -29,7 +29,7 @@
     <aside id="sidebar" class="hidden md:flex flex-col w-64 glass-nav h-full z-20 transition-all duration-300 transform">
         <!-- Brand -->
         <div class="p-6 flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+            <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
                 <i data-lucide="zap" class="w-6 h-6"></i>
             </div>
             <div>
@@ -40,15 +40,15 @@
 
         <!-- Navigation -->
         <nav class="flex-1 px-4 space-y-2 mt-4">
-            <button onclick="router('dashboard')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group">
+            <button onclick="router('dashboard')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-100 hover:text-brand-700 transition-all group">
                 <i data-lucide="layout-grid" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                 Dashboard
             </button>
-            <button onclick="router('tracker')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group active-nav bg-brand-50 text-brand-600">
+            <button onclick="router('tracker')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-100 hover:text-brand-700 transition-all group active-nav bg-brand-100 text-brand-700 font-bold">
                 <i data-lucide="plus-circle" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                 New Issue
             </button>
-            <button onclick="router('history')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group">
+            <button onclick="router('history')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-100 hover:text-brand-700 transition-all group">
                 <i data-lucide="history" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                 History
             </button>
@@ -70,7 +70,7 @@
             <!-- Profile Menu (Absolute) -->
             <div id="profile-menu" class="hidden absolute bottom-full left-0 w-full mb-2 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-scale-up origin-bottom z-40">
                 <button onclick="openProfileEditor()" class="w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                    <i data-lucide="user-cog" class="w-4 h-4 text-brand-600"></i> Edit Profile
+                    <i data-lucide="user-cog" class="w-4 h-4 text-brand-700"></i> Edit Profile
                 </button>
                 <div class="h-px bg-slate-50"></div>
                 <button onclick="logout()" class="w-full text-left px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 flex items-center gap-2">
@@ -92,7 +92,7 @@
                 <span class="font-bold text-slate-800">Issue Tracker</span>
             </div>
             <!-- Mobile Profile Trigger -->
-            <button onclick="openProfileEditor()" class="p-2 text-slate-400 hover:text-brand-600">
+            <button onclick="openProfileEditor()" class="p-2 text-slate-400 hover:text-brand-700">
                 <i data-lucide="user-cog" class="w-5 h-5"></i>
             </button>
         </header>
@@ -103,7 +103,7 @@
             <!-- VIEW: TRACKER (New Issue) -->
             <div id="view-tracker" class="max-w-6xl mx-auto pb-24 md:pb-0 animate-slide-up">
                 
-                <div class="flex items-center gap-2 mb-6 cursor-pointer text-slate-500 hover:text-brand-600 transition w-fit" onclick="router('dashboard')">
+                <div class="flex items-center gap-2 mb-6 cursor-pointer text-slate-500 hover:text-brand-700 transition w-fit" onclick="router('dashboard')">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
                     <span class="text-sm font-bold">Back to Dashboard</span>
                 </div>
@@ -113,7 +113,7 @@
                     <!-- Form Area -->
                     <div class="lg:col-span-2 glass-card rounded-3xl p-6 md:p-8 shadow-xl shadow-slate-200/50">
                         <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                            <span class="bg-brand-100 text-brand-600 p-2 rounded-lg"><i data-lucide="pen-tool" class="w-5 h-5"></i></span>
+                            <span class="bg-brand-100 text-brand-700 p-2 rounded-lg"><i data-lucide="pen-tool" class="w-5 h-5"></i></span>
                             New Issue Entry
                         </h2>
 
@@ -131,24 +131,24 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <!-- Start -->
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-bold text-brand-600 mb-1">Start Time</span>
+                                        <span class="text-xs font-bold text-brand-700 mb-1">Start Time</span>
                                         <div class="flex gap-1">
                                             <select id="start-h" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none flex-1"></select>
                                             <span class="py-2 text-slate-300">:</span>
                                             <select id="start-m" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none flex-1"></select>
-                                            <select id="start-ampm" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none w-16 text-brand-600">
+                                            <select id="start-ampm" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none w-16 text-brand-700">
                                                 <option>AM</option><option>PM</option>
                                             </select>
                                         </div>
                                     </div>
                                     <!-- End -->
                                     <div class="flex flex-col">
-                                        <span class="text-xs font-bold text-purple-600 mb-1">End Time</span>
+                                        <span class="text-xs font-bold text-brand-700 mb-1">End Time</span>
                                         <div class="flex gap-1">
-                                            <select id="end-h" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-purple-500 outline-none flex-1"></select>
+                                            <select id="end-h" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none flex-1"></select>
                                             <span class="py-2 text-slate-300">:</span>
-                                            <select id="end-m" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-purple-500 outline-none flex-1"></select>
-                                            <select id="end-ampm" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-purple-500 outline-none w-16 text-purple-600">
+                                            <select id="end-m" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none flex-1"></select>
+                                            <select id="end-ampm" class="bg-white border-slate-200 rounded-lg py-2 px-2 text-sm font-bold shadow-sm focus:border-brand-500 outline-none w-16 text-brand-700">
                                                 <option>AM</option><option>PM</option>
                                             </select>
                                         </div>
@@ -182,7 +182,7 @@
                                             <input type="radio" name="entry.1231067802" value="System issue (Network , Asset & Aspect /WDE issue)" class="accent-brand-600 w-4 h-4" checked>
                                             <span class="ml-2 text-sm font-semibold text-slate-700">System / Network</span>
                                         </label>
-                                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50">
+                                        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:border-brand-500 has-[:checked]:bg-brand-100">
                                             <input type="radio" name="entry.1231067802" value="Voice Issue" class="accent-purple-600 w-4 h-4">
                                             <span class="ml-2 text-sm font-semibold text-slate-700">Voice Issue</span>
                                         </label>
@@ -196,7 +196,7 @@
                                 <textarea id="remarks-input" rows="2" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 focus:ring-2 focus:ring-brand-500 outline-none transition text-sm shadow-sm" placeholder="Any extra details..."></textarea>
                             </div>
 
-                            <button type="submit" id="submit-btn" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-xl shadow-slate-900/20 hover:bg-slate-800 hover:shadow-2xl transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+                            <button type="submit" id="submit-btn" class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl shadow-xl shadow-brand-600/20 hover:bg-brand-700 hover:shadow-2xl transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
                                 <span>Submit Issue</span>
                                 <i data-lucide="send" class="w-4 h-4"></i>
                             </button>
@@ -205,11 +205,11 @@
 
                     <!-- Live Preview Card (Sticky) -->
                     <div class="hidden lg:block lg:col-span-1 sticky top-4">
-                        <div class="glass-card rounded-3xl p-6 border-t-4 border-t-brand-500 relative overflow-hidden">
-                            <div class="absolute top-0 right-0 bg-brand-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Preview</div>
+                        <div class="glass-card rounded-3xl p-6 border-t-4 border-t-brand-600 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-brand-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Preview</div>
                             
                             <div class="flex items-center gap-3 mb-6">
-                                <div class="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 font-bold border border-brand-100" id="preview-avatar">U</div>
+                                <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold border border-brand-100" id="preview-avatar">U</div>
                                 <div>
                                     <div class="font-bold text-slate-800 leading-tight" id="preview-name">User Name</div>
                                     <div class="text-xs text-slate-400 font-bold font-mono" id="preview-crm">#000000</div>
@@ -225,7 +225,7 @@
                                     <label class="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
                                         <i data-lucide="clock" class="w-3 h-3"></i> Duration
                                     </label>
-                                    <div class="font-mono text-brand-600 font-bold mt-1 text-sm" id="preview-time">--:-- to --:--</div>
+                                    <div class="font-mono text-brand-700 font-bold mt-1 text-sm" id="preview-time">--:-- to --:--</div>
                                 </div>
                             </div>
                         </div>
@@ -242,7 +242,7 @@
                 <i data-lucide="layout-grid" class="w-6 h-6 mb-1 group-hover:scale-110 transition-transform"></i>
                 <span class="text-[10px] font-bold">Dash</span>
             </button>
-            <button onclick="router('tracker')" class="flex flex-col items-center justify-center w-full h-full text-slate-400 active-nav group text-brand-600">
+            <button onclick="router('tracker')" class="flex flex-col items-center justify-center w-full h-full text-slate-400 active-nav group text-brand-700">
                 <div class="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center text-white -mt-8 shadow-lg shadow-slate-900/30 border-4 border-slate-100 transition-transform active:scale-95">
                     <i data-lucide="plus" class="w-6 h-6"></i>
                 </div>

@@ -29,7 +29,7 @@
     <aside id="sidebar" class="hidden md:flex flex-col w-64 glass-nav h-full z-20 transition-all duration-300 transform">
         <!-- Brand -->
         <div class="p-6 flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+            <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
                 <i data-lucide="zap" class="w-6 h-6"></i>
             </div>
             <div>
@@ -40,15 +40,15 @@
 
         <!-- Navigation -->
         <nav class="flex-1 px-4 space-y-2 mt-4">
-            <button onclick="router('dashboard')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group">
+            <button onclick="router('dashboard')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-100 hover:text-brand-700 transition-all group">
                 <i data-lucide="layout-grid" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                 Dashboard
             </button>
-            <button onclick="router('tracker')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group">
+            <button onclick="router('tracker')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-100 hover:text-brand-700 transition-all group">
                 <i data-lucide="plus-circle" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                 New Issue
             </button>
-            <button onclick="router('history')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-50 hover:text-brand-600 transition-all group active-nav bg-brand-50 text-brand-600">
+            <button onclick="router('history')" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl text-slate-500 hover:bg-brand-100 hover:text-brand-700 transition-all group active-nav bg-brand-100 text-brand-700 font-bold">
                 <i data-lucide="history" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                 History
             </button>
@@ -70,7 +70,7 @@
             <!-- Profile Menu (Absolute) -->
             <div id="profile-menu" class="hidden absolute bottom-full left-0 w-full mb-2 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-scale-up origin-bottom z-40">
                 <button onclick="openProfileEditor()" class="w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                    <i data-lucide="user-cog" class="w-4 h-4 text-brand-600"></i> Edit Profile
+                    <i data-lucide="user-cog" class="w-4 h-4 text-brand-700"></i> Edit Profile
                 </button>
                 <div class="h-px bg-slate-50"></div>
                 <button onclick="logout()" class="w-full text-left px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 flex items-center gap-2">
@@ -86,13 +86,13 @@
         <!-- Mobile Header -->
         <header class="md:hidden h-16 glass-nav flex items-center justify-between px-4 z-20 shrink-0">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center text-white">
+                <div class="w-8 h-8 bg-brand-600 rounded-xl flex items-center justify-center text-white">
                     <i data-lucide="zap" class="w-5 h-5"></i>
                 </div>
                 <span class="font-bold text-slate-800">Issue Tracker</span>
             </div>
             <!-- Mobile Profile Trigger -->
-            <button onclick="openProfileEditor()" class="p-2 text-slate-400 hover:text-brand-600">
+            <button onclick="openProfileEditor()" class="p-2 text-slate-400 hover:text-brand-700">
                 <i data-lucide="user-cog" class="w-5 h-5"></i>
             </button>
         </header>
@@ -104,7 +104,7 @@
             <div id="view-history" class="max-w-6xl mx-auto pb-24 md:pb-0 animate-slide-up">
                  <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-slate-900">History Log</h2>
-                    <button onclick="clearHistory()" class="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 px-3 py-2 rounded-lg transition">Clear All</button>
+                    <button onclick="clearHistory()" class="text-xs font-bold text-red-600 hover:bg-red-100 px-3 py-2 rounded-xl transition">Clear All</button>
                  </div>
                  <div class="glass-card rounded-3xl overflow-hidden min-h-[400px]">
                     <div class="overflow-x-auto">
@@ -135,11 +135,11 @@
                 <span class="text-[10px] font-bold">Dash</span>
             </button>
             <button onclick="router('tracker')" class="flex flex-col items-center justify-center w-full h-full text-slate-400 group">
-                <div class="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center text-white -mt-8 shadow-lg shadow-slate-900/30 border-4 border-slate-100 transition-transform active:scale-95">
+                <div class="w-12 h-12 bg-brand-600 rounded-full flex items-center justify-center text-white -mt-8 shadow-lg shadow-brand-600/30 border-4 border-slate-100 transition-transform active:scale-95">
                     <i data-lucide="plus" class="w-6 h-6"></i>
                 </div>
             </button>
-            <button onclick="router('history')" class="flex flex-col items-center justify-center w-full h-full text-slate-400 active-nav group text-brand-600">
+            <button onclick="router('history')" class="flex flex-col items-center justify-center w-full h-full text-brand-700 active-nav group">
                 <i data-lucide="history" class="w-6 h-6 mb-1 group-hover:scale-110 transition-transform"></i>
                 <span class="text-[10px] font-bold">History</span>
             </button>

@@ -31,7 +31,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         updatePreview();
     }
+
+    // Live Clock functionality
+    updateLiveClock(); // Set initial time
+    setInterval(updateLiveClock, 1000); // Update every second
 });
+
+function updateLiveClock() {
+    const clockEl = document.getElementById('live-clock');
+    if (clockEl) {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        clockEl.innerText = timeString;
+    }
+}
 
 // --- NAVIGATION ---
 function router(page) {

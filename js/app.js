@@ -71,7 +71,7 @@ function updateLiveClock() {
 
 async function fetchServerTimeAndStartClock() {
     try {
-        const response = await fetch('http://worldtimeapi.org/api/ip'); // Fetch time based on IP
+        const response = await fetch('https://worldtimeapi.org/api/ip'); // Fetch time based on IP
         const data = await response.json();
         const serverTime = new Date(data.datetime);
         const localTime = new Date();

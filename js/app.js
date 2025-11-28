@@ -2,7 +2,7 @@
 let currentUser = JSON.parse(localStorage.getItem('tracker_user')) || null;
 let historyLog = JSON.parse(localStorage.getItem('tracker_history')) || [];
 let timeOffset = 0; // Global variable to store the difference between server and local time
-let is24HourFormat = false;
+let is24HourFormat = JSON.parse(localStorage.getItem('time_format_24h')) || false;
 
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -37,8 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Time Format Toggle Listener
     const formatToggle = document.getElementById('time-format-toggle');
     if (formatToggle) {
+        // Set initial state from local storage
+        formatToggle.checked = is24HourFormat;
+
         formatToggle.addEventListener('change', (e) => {
             is24HourFormat = e.target.checked;
+            localStorage.setItem('time_format_24h', JSON.stringify(is24HourFormat));
             updateLiveClock(); // Immediate update
         });
     }

@@ -2,6 +2,7 @@
 let currentUser = JSON.parse(localStorage.getItem('tracker_user')) || null;
 let historyLog = JSON.parse(localStorage.getItem('tracker_history')) || [];
 let timeOffset = 0; // Global variable to store the difference between server and local time
+let is24HourFormat = false;
 
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -33,6 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePreview();
     }
 
+    // Time Format Toggle Listener
+    const formatToggle = document.getElementById('time-format-toggle');
+    if (formatToggle) {
+        formatToggle.addEventListener('change', (e) => {
+            is24HourFormat = e.target.checked;
+            updateLiveClock(); // Immediate update
+        });
+    }
+
     // Live Clock functionality - now fetches server time first
     fetchServerTimeAndStartClock();
 });
@@ -42,7 +52,12 @@ function updateLiveClock() {
     if (clockEl) {
         // Use the calculated offset to display server time
         const now = new Date(Date.now() + timeOffset);
-        const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        const timeString = now.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: !is24HourFormat 
+        });
         clockEl.innerText = timeString;
     }
 }

@@ -1,6 +1,7 @@
 // --- STATE MANAGEMENT ---
 let currentUser = JSON.parse(localStorage.getItem('tracker_user')) || null;
 let historyLog = JSON.parse(localStorage.getItem('tracker_history')) || [];
+let timeOffset = 0; // Global variable to store the difference between server and local time
 
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -32,17 +33,36 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePreview();
     }
 
-    // Live Clock functionality
-    updateLiveClock(); // Set initial time
-    setInterval(updateLiveClock, 1000); // Update every second
+    // Live Clock functionality - now fetches server time first
+    fetchServerTimeAndStartClock();
 });
 
 function updateLiveClock() {
     const clockEl = document.getElementById('live-clock');
     if (clockEl) {
-        const now = new Date();
+        // Use the calculated offset to display server time
+        const now = new Date(Date.now() + timeOffset);
         const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
         clockEl.innerText = timeString;
+    }
+}
+
+async function fetchServerTimeAndStartClock() {
+    try {
+        const response = await fetch('http://worldtimeapi.org/api/ip'); // Fetch time based on IP
+        const data = await response.json();
+        const serverTime = new Date(data.datetime);
+        const localTime = new Date();
+        timeOffset = serverTime.getTime() - localTime.getTime(); // Calculate offset
+
+        updateLiveClock(); // Set initial time
+        setInterval(updateLiveClock, 1000); // Update every second using the offset
+
+    } catch (error) {
+        console.error('Error fetching server time, falling back to local time:', error);
+        // Fallback to local time if API fails
+        updateLiveClock();
+        setInterval(updateLiveClock, 1000);
     }
 }
 

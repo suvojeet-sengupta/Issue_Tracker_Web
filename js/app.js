@@ -178,20 +178,36 @@ function renderHistory() {
         } else {
             historyLog.slice(0, 5).forEach(item => {
                 const el = document.createElement('div');
-                el.className = 'p-4 flex items-center justify-between hover:bg-slate-50 transition-colors';
+                el.className = 'flex gap-4 group relative pl-6 border-l-2 border-slate-100 last:border-0 pb-8 last:pb-0 hover:border-indigo-200 transition-colors';
+                
+                const dateObj = new Date(item.timestamp);
+                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                // Determine status color (simulated based on cause for variety)
+                let statusColor = 'bg-indigo-500';
+                let tagClass = 'bg-blue-50 text-blue-600 border-blue-100';
+                let tagLabel = 'System';
+
+                if (item.cause && item.cause.includes('Voice')) {
+                    statusColor = 'bg-purple-500';
+                    tagClass = 'bg-purple-50 text-purple-600 border-purple-100';
+                    tagLabel = 'Voice';
+                } else if (item.cause && item.cause.includes('Power')) {
+                    statusColor = 'bg-amber-400';
+                    tagClass = 'bg-amber-50 text-amber-600 border-amber-100';
+                    tagLabel = 'Power';
+                }
+
                 el.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
-                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full border-4 border-white shadow-sm box-content ${statusColor}"></div>
+                    
+                    <div class="flex-1 -mt-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded">${timeStr}</span>
+                            <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${tagClass}">${tagLabel}</span>
                         </div>
-                        <div>
-                            <p class="text-sm font-bold text-slate-800">${item.issue}</p>
-                            <p class="text-xs text-slate-400">${item.cause}</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs font-bold text-slate-600">${item.timeRange}</p>
-                        <p class="text-[10px] text-slate-400">${new Date(item.timestamp).toLocaleDateString()}</p>
+                        <h4 class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors cursor-pointer">${item.issue}</h4>
+                        <p class="text-xs text-slate-500 mt-1 line-clamp-1">${item.cause || 'No details provided'}</p>
                     </div>
                 `;
                 listContainer.appendChild(el);

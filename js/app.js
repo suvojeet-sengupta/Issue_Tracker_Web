@@ -227,12 +227,28 @@ function initTimeSelects() {
     
     ['start-h', 'end-h'].forEach(id => {
         const el = document.getElementById(id);
-        if(el) hours.forEach(h => el.add(new Option(h, h)));
+        if(el) {
+            el.add(new Option('', ''));
+            hours.forEach(h => el.add(new Option(h, h)));
+            el.value = '';
+        }
     });
     
     ['start-m', 'end-m'].forEach(id => {
         const el = document.getElementById(id);
-        if(el) mins.forEach(m => el.add(new Option(m, m)));
+        if(el) {
+            el.add(new Option('', ''));
+            mins.forEach(m => el.add(new Option(m, m)));
+            el.value = '';
+        }
+    });
+
+    // Default AM/PM
+    const now = new Date();
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+    ['start-ampm', 'end-ampm'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.value = ampm;
     });
 }
 

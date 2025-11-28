@@ -10,6 +10,18 @@ export const TrackerScreen = {
         const iframe = document.getElementById('hidden_iframe');
         const iframeModal = document.getElementById('iframe-modal');
 
+        // Set default time values
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentAmPm = currentHour >= 12 ? 'PM' : 'AM';
+
+        document.getElementById('start-hour').value = '';
+        document.getElementById('start-min').value = '';
+        document.getElementById('start-ampm').value = currentAmPm;
+        document.getElementById('end-hour').value = '';
+        document.getElementById('end-min').value = '';
+        document.getElementById('end-ampm').value = currentAmPm;
+
         // Form Submit
         form.addEventListener('submit', (e) => {
             e.preventDefault();

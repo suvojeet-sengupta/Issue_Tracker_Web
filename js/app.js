@@ -52,13 +52,20 @@ function updateLiveClock() {
     if (clockEl) {
         // Use the calculated offset to display server time
         const now = new Date(Date.now() + timeOffset);
-        const timeString = now.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit', 
-            hour12: !is24HourFormat 
-        });
-        clockEl.innerText = timeString;
+        
+        let h = now.getHours();
+        const m = now.getMinutes().toString().padStart(2, '0');
+        const s = now.getSeconds().toString().padStart(2, '0');
+        let ampm = '';
+
+        if (!is24HourFormat) {
+            ampm = h >= 12 ? ' PM' : ' AM';
+            h = h % 12;
+            h = h ? h : 12; // the hour '0' should be '12'
+        }
+
+        const hStr = h.toString().padStart(2, '0');
+        clockEl.innerText = `${hStr}:${m}:${s}${ampm}`;
     }
 }
 

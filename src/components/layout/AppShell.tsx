@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTracker } from "@/context/TrackerContext";
 import { cn } from "@/lib/utils";
@@ -19,16 +19,44 @@ import {
 import Link from "next/link";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-    const { user, logout } = useTracker();
+    const { user, logout, isLoading } = useTracker();
     const pathname = usePathname();
     const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-    // If no user and not on setup page, don't show shell (handled by route protection usually, but visual check here)
-    if (!user && pathname !== "/setup") return <>{children}</>;
-    // If on setup page, generally we want a clean layout or just the form
-    if (pathname === "/setup") return <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">{children}</div>;
+    // Redirect logic for first-time users
+    useEffect(() => {
+        if (!isLoading && !user && pathname !== "/setup") {
+            router.push("/setup");
+        }
+    }, [user, isLoading, pathname, router]);
+
+    // Show loading state while checking user persistence
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#f1f5f9] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white animate-pulse">
+                        <Zap className="w-6 h-6" />
+                    </div>
+                    <p className="text-slate-400 text-sm font-semibold animate-pulse">Loading Workspace...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // If on setup page, show simple layout
+    if (pathname === "/setup") {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+                {children}
+            </div>
+        );
+    }
+
+    // If no user and not on setup (and not loading), we are redirecting, so return null/loading
+    if (!user) return null;
 
     const navItems = [
         { name: "Dashboard", icon: LayoutGrid, path: "/" },

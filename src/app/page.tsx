@@ -4,6 +4,7 @@ import React from 'react';
 import { useTracker } from '@/context/TrackerContext';
 import StatsGrid from '@/components/dashboard/StatsGrid';
 import RecentActivity from '@/components/dashboard/RecentActivity';
+import AnalyticsDashboard from '@/components/dashboard/AnalyticsDashboard';
 import LiveClock from '@/components/dashboard/LiveClock';
 import { Search, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -47,6 +48,9 @@ export default function DashboardPage() {
 
       {/* Metrics */}
       <StatsGrid />
+
+      {/* Analytics */}
+      <AnalyticsDashboard />
 
       {/* Split View */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

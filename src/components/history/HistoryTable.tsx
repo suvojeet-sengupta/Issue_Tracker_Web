@@ -55,7 +55,31 @@ export default function HistoryTable() {
                 </table>
             </div>
 
-            <div className="p-4 border-t border-slate-100 flex justify-end bg-slate-50/30">
+            <div className="p-4 border-t border-slate-100 flex justify-between bg-slate-50/30">
+                <button
+                    onClick={() => {
+                        const headers = ['Date', 'Time Range', 'Issue', 'Cause'];
+                        const csvContent = [
+                            headers.join(','),
+                            ...history.map(item => [
+                                new Date(item.timestamp).toLocaleDateString(),
+                                `"${item.timeRange}"`, // Quote time range to handle potential commas
+                                `"${item.issue.replace(/"/g, '""')}"`, // Escape quotes
+                                `"${item.cause}"`
+                            ].join(','))
+                        ].join('\n');
+
+                        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `tracker_history_${new Date().toISOString().split('T')[0]}.csv`;
+                        link.click();
+                    }}
+                    className="text-xs font-bold text-brand-600 hover:text-brand-800 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-brand-50 transition-colors"
+                >
+                    <div className="w-4 h-4 rounded border-2 border-current flex items-center justify-center text-[8px] font-black">↓</div> Export CSV
+                </button>
+
                 <button
                     onClick={() => {
                         if (confirm('Are you sure you want to clear all history?')) clearHistory();

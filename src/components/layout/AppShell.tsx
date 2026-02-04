@@ -46,11 +46,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         );
     }
 
-    // If on setup page, show simple layout
+    // If on setup page, show simple layout with premium background
     if (pathname === "/setup") {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-                {children}
+            <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4 relative overflow-hidden">
+                {/* Background Blobs */}
+                <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+                <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2 pointer-events-none" />
+
+                <div className="relative z-10 w-full">
+                    {children}
+                </div>
             </div>
         );
     }

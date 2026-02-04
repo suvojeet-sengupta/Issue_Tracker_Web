@@ -13,7 +13,7 @@ export default function TrackerPage() {
     const router = useRouter();
 
     // Form State
-    const [issue, setIssue] = useState('System Sloweness');
+    const [issue, setIssue] = useState('System Hang / Voice Issue');
     const [cause, setCause] = useState('System Issue');
     const [remarks, setRemarks] = useState('');
 
@@ -136,7 +136,7 @@ export default function TrackerPage() {
                                     Select Issue
                                 </label>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {['System Sloweness', 'Citrix Issue', 'VPN Down', 'Audio Issue', 'VDI Lag', 'Other'].map((opt) => (
+                                    {['System Hang / Voice Issue', 'Electricity Issue/Power Failure', 'Head Phone Issue', 'Wifi Stopped Working', 'Voice Issue / Cx Voice Not Audible', 'Mobile Phone Hang', 'Auto Call Drop', 'Aspect / WDE issue', 'Mobile Network Connectivity'].map((opt) => (
                                         <label key={opt} className="cursor-pointer group">
                                             <input
                                                 type="radio"

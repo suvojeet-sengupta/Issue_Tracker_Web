@@ -14,7 +14,7 @@ export default function TrackerPage() {
 
     // Form State
     const [issue, setIssue] = useState('System Hang / Voice Issue');
-    const [cause, setCause] = useState('System Issue');
+    const [cause, setCause] = useState('System issue (Network , Asset & Aspect /WDE issue)');
     const [remarks, setRemarks] = useState('');
 
     // Time State
@@ -161,7 +161,7 @@ export default function TrackerPage() {
                                     Root Cause
                                 </label>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    {['System Issue', 'Power Outage', 'Internet Issue'].map((opt) => (
+                                    {['System issue (Network , Asset & Aspect /WDE issue)', 'Voice Issue'].map((opt) => (
                                         <label key={opt} className="cursor-pointer">
                                             <input
                                                 type="radio"
